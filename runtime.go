@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/robertkrimen/otto/ast"
 	"github.com/robertkrimen/otto/parser"
@@ -601,6 +602,14 @@ func (self *_runtime) toValue(value interface{}) Value {
 			file = path.Base(file)
 		}
 		return toValue_object(self.newNativeFunction(name, file, line, value))
+	case time.Time:
+		// Preserve the time in case it is unmodified
+		obj := self.newDate(0)
+		dateObj := obj.value.(_dateObject)
+		dateObj.SetTime(value)
+		dateObj.time = value
+		obj.value = dateObj
+		return toValue_object(obj)
 	case Object, *Object, _object, *_object:
 		// Nothing happens.
 		// FIXME We should really figure out what can come here.
