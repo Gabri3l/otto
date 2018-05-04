@@ -1,6 +1,7 @@
 package otto
 
 import (
+	"context"
 	"encoding"
 	"errors"
 	"fmt"
@@ -64,9 +65,9 @@ type _runtime struct {
 	random       func() float64
 	stackLimit   int
 	traceLimit   int
-
-	labels []string // FIXME
-	lck    sync.Mutex
+	ctx          context.Context
+	labels       []string // FIXME
+	lck          sync.Mutex
 }
 
 func (self *_runtime) enterScope(scope *_scope) {
@@ -108,10 +109,23 @@ func (self *_runtime) leaveScope() {
 
 // FIXME This is used in two places (cloning)
 func (self *_runtime) enterGlobalScope() {
-	self.enterScope(newScope(self.globalStash, self.globalStash, self.globalObject))
+	self.enterScope(newScope(self.globalStash, self.globalStash, self.globalObject, self.ctx))
 }
 
-func (self *_runtime) enterFunctionScope(outer _stash, this Value) *_fnStash {
+func (self *_runtime) enterGlobalScopeWithContext(ctx context.Context) {
+	self.enterScope(newScope(self.globalStash, self.globalStash, self.globalObject, ctx))
+}
+
+// return the context for the runtime's current scope
+func (self *_runtime) context() context.Context {
+	if self.scope != nil {
+		return self.scope.context
+	}
+
+	return self.ctx
+}
+
+func (self *_runtime) enterFunctionScope(outer _stash, this Value, ctx context.Context) *_fnStash {
 	if outer == nil {
 		outer = self.globalStash
 	}
@@ -123,7 +137,7 @@ func (self *_runtime) enterFunctionScope(outer _stash, this Value) *_fnStash {
 	default:
 		thisObject = self.toObject(this)
 	}
-	self.enterScope(newScope(stash, stash, thisObject))
+	self.enterScope(newScope(stash, stash, thisObject, ctx))
 	return stash
 }
 
