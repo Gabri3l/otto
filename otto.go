@@ -570,7 +570,7 @@ func (self Otto) ContextSkip(limit int, skipNative bool) (ctx Context) {
 //      value, _ := vm.Call(`[ 1, 2, 3, undefined, 4 ].concat`, nil, 5, 6, 7, "abc")
 //
 func (self Otto) Call(source string, this interface{}, argumentList ...interface{}) (Value, error) {
-	return self.CallWithContext(goctx.Background(), source, this, argumentList)
+	return self.CallWithContext(goctx.Background(), source, this, argumentList...)
 }
 
 func (self Otto) CallWithContext(ctx goctx.Context, source string, this interface{}, argumentList ...interface{}) (Value, error) {
