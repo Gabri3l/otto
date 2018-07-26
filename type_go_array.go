@@ -130,5 +130,5 @@ func goArrayDelete(self *_object, name string, throw bool) bool {
 		return self.runtime.typeErrorResult(throw)
 	}
 
-	return self.delete(name, throw)
+	return objectDelete(self, name, throw)
 }
