@@ -45,6 +45,46 @@ func TestPanicValue(t *testing.T) {
 	})
 }
 
+func TestPanicError(t *testing.T) {
+	tt(t, func() {
+		test, vm := test()
+
+		vm.Set("abc", func(call FunctionCall) Value {
+			_, err := call.Otto.Run(`throw new Error("ouch")`)
+			if err == nil {
+				panic("error should not be nil")
+			}
+			panic(err)
+		})
+
+		test(`
+            try {
+                abc();
+            }
+            catch (err) {
+                error = err;
+            }
+            [ error instanceof Error, error.message ];
+        `, "true,ouch")
+
+		vm.Set("abc", func(call FunctionCall) Value {
+			value, err := call.Otto.Run(`(new Error("ouch"))`)
+			is(err, nil)
+			panic(value)
+		})
+
+		test(`
+            try {
+                abc();
+            }
+            catch (err) {
+                error = err;
+            }
+            [ error instanceof Error, error.message ];
+        `, "true,ouch")
+	})
+}
+
 func Test_catchPanic(t *testing.T) {
 	tt(t, func() {
 		vm := New()

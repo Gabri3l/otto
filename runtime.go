@@ -161,6 +161,9 @@ func (self *_runtime) tryCatchEvaluate(inner func() Value) (tryValue Value, exce
 			if exception, ok := caught.(*_exception); ok {
 				caught = exception.eject()
 			}
+			if err, ok := caught.(*Error); ok {
+				caught = err._error
+			}
 			switch caught := caught.(type) {
 			case _error:
 				exception = true
