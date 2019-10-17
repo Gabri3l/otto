@@ -146,8 +146,12 @@ func TestString_match(t *testing.T) {
 		test(`
             abc = /abc/g
             "abc___abc_abc__abc__abc".match(abc)
-        `, "abc,abc,abc,abc,abc")
+				`, "abc,abc,abc,abc,abc")
 		test(`abc.lastIndex`, 23)
+		test(`"abcdefg_abcdegf_abcedfg_abcfdeg".match(/abc(?=defg)/)`, "abc")
+		test(`"abcdefg_abcdegf_abddefg_abcfdeg_abcdefg".match(/ab(c|d)(?=defg)/g)`, "abc,abd,abc")
+		test(`"Abcdefg_abcdEgf_ABddefg_abCfDeg_abcdEFg".match(/ab(c|d)(?=defg)/gi)`, "Abc,ABd,abc")
+		test(`"abcdefg\nhijklmn".match(/h(?=ij)/m)`, "h")
 	})
 }
 
@@ -191,7 +195,8 @@ func TestString_replace(t *testing.T) {
             var abc = 'She sells seashells by the seashore.';
             var def = /sh/;
             [ abc.replace(def, "$'" + 'sch') ];
-        `, "She sells seaells by the seashore.schells by the seashore.")
+				`, "She sells seaells by the seashore.schells by the seashore.")
+		test(`"abcdefg".replace(/abc(?=defg)/, "hij")`, "hijdefg")
 	})
 }
 
@@ -214,6 +219,11 @@ func TestString_search(t *testing.T) {
 		test(`"abc".search(/def/)`, -1)
 		test(`"abc".search(/c$/)`, 2)
 		test(`"abc".search(/$/)`, 3)
+		test(`"abc".search("bc")`, 1)
+		test(`"abc".search("d")`, -1)
+		test(`"abc".search(/a(?=b)/)`, 0)
+		test(`"abc".search(/b(?=c)/)`, 1)
+		test(`"abc".search(/c(?=d)/)`, -1)
 	})
 }
 
@@ -258,7 +268,9 @@ func TestString_split(t *testing.T) {
             var def = abc.split(new RegExp);
 
             [ def.constructor === Array, abc.length, def.length, def.join('') ];
-        `, "true,19,19,one-1 two-2 three-3")
+				`, "true,19,19,one-1 two-2 three-3")
+		test(`"a++b+-c".split(/([+-])\1/).join(" $$ ")`, "a $$ + $$ b+-c")
+		test(`"Fubpxjnir Synfu 9.0  e115".replace(/([a-zA-Z]|\s)+/, '')`, "9.0  e115")
 	})
 }
 
