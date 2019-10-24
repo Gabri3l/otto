@@ -633,7 +633,7 @@ func Test_reflectArray(t *testing.T) {
 			is(err, nil)
 			abc, err := val.Export()
 			is(err, nil)
-			is(abc, []int64{1, 2, 3})
+			is(abc, []interface{}{int64(1), int64(2), int64(3)})
 		}
 
 		// common type string
@@ -648,7 +648,7 @@ func Test_reflectArray(t *testing.T) {
 			is(err, nil)
 			abc, err := val.Export()
 			is(err, nil)
-			is(abc, []string{"str1", "str2", "str3"})
+			is(abc, []interface{}{"str1", "str2", "str3"})
 		}
 
 		// issue #269
@@ -657,7 +657,7 @@ func Test_reflectArray(t *testing.T) {
 			vm.Set("blah", func(c FunctionCall) Value {
 				v, err := c.Argument(0).Export()
 				is(err, nil)
-				is(v, []int64{3})
+				is(v, []interface{}{int64(3)})
 				called = true
 				return UndefinedValue()
 			})
