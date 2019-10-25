@@ -1,8 +1,6 @@
 package pcre
 
 import (
-	"fmt"
-
 	"github.com/dlclark/regexp2"
 )
 
@@ -25,15 +23,12 @@ func New(pattern string, opt regexp2.RegexOptions) (Regexp, error) {
 
 // FindStringIndex searches for a match given a string and returns the index pair of first occurrence
 func (regexp Regexp) FindStringIndex(input string) ([]int, error) {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Printf("Recovered in r: %+v", r)
-		}
-	}()
-
 	match, err := regexp.regexp.FindStringMatch(input)
 	if err != nil {
 		return nil, err
+	}
+	if match == nil {
+		return nil, nil
 	}
 
 	startIndex := match.Group.Capture.Index
@@ -43,15 +38,12 @@ func (regexp Regexp) FindStringIndex(input string) ([]int, error) {
 
 // FindStringSubmatchIndex finds the indexes of the first match and group matches
 func (regexp Regexp) FindStringSubmatchIndex(input string) ([]int, error) {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Printf("Recovered in r: %+v", r)
-		}
-	}()
-
 	match, err := regexp.regexp.FindStringMatch(input)
 	if err != nil {
 		return nil, err
+	}
+	if match == nil {
+		return nil, nil
 	}
 
 	var submatchResults []int
@@ -65,16 +57,13 @@ func (regexp Regexp) FindStringSubmatchIndex(input string) ([]int, error) {
 
 // FindAllStringIndex returns the index pairs of all successive occurrences of the regex in the input, from the given index
 func (regexp Regexp) FindAllStringIndex(input string, index int) ([][]int, error) {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Printf("Recovered in r: %+v", r)
-		}
-	}()
-
 	var results [][]int
 	match, err := regexp.regexp.FindStringMatch(input)
 	if err != nil {
 		return nil, err
+	}
+	if match == nil {
+		return nil, nil
 	}
 
 	for match != nil {
@@ -100,16 +89,13 @@ func (regexp Regexp) FindAllSubmatchIndex(input []byte, index int) ([][]int, err
 
 // FindAllStringSubmatch returns the index all successive matches by match group
 func (regexp Regexp) FindAllStringSubmatch(input string, index int) ([][]string, error) {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Printf("Recovered in r: %+v", r)
-		}
-	}()
-
 	var results [][]string
 	match, err := regexp.regexp.FindStringMatch(input)
 	if err != nil {
 		return nil, err
+	}
+	if match == nil {
+		return nil, nil
 	}
 
 	for match != nil {
@@ -132,16 +118,13 @@ func (regexp Regexp) FindAllStringSubmatch(input string, index int) ([][]string,
 
 // FindAllStringSubmatchIndex returns all successive input pairs by match group
 func (regexp Regexp) FindAllStringSubmatchIndex(input string, index int) ([][]int, error) {
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Printf("Recovered in r: %+v", r)
-		}
-	}()
-
 	var results [][]int
 	match, err := regexp.regexp.FindStringMatch(input)
 	if err != nil {
 		return nil, err
+	}
+	if match == nil {
+		return nil, nil
 	}
 
 	for match != nil {

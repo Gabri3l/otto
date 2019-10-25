@@ -152,6 +152,7 @@ func TestString_match(t *testing.T) {
 		test(`"abcdefg_abcdegf_abddefg_abcfdeg_abcdefg".match(/ab(c|d)(?=defg)/g)`, "abc,abd,abc")
 		test(`"Abcdefg_abcdEgf_ABddefg_abCfDeg_abcdEFg".match(/ab(c|d)(?=defg)/gi)`, "Abc,ABd,abc")
 		test(`"abcdefg\nhijklmn".match(/h(?=ij)/m)`, "h")
+		test(`"abc".match(/c(?=d)/)`, NullValue())
 	})
 }
 
@@ -197,6 +198,7 @@ func TestString_replace(t *testing.T) {
             [ abc.replace(def, "$'" + 'sch') ];
 				`, "She sells seaells by the seashore.schells by the seashore.")
 		test(`"abcdefg".replace(/abc(?=defg)/, "hij")`, "hijdefg")
+		test(`"abc".replace(/c(?=d)/, "woo")`, "abc")
 	})
 }
 
@@ -255,6 +257,7 @@ func TestString_split(t *testing.T) {
 		test(`"__1__3_1__2__".split("_")`, ",,1,,3,1,,2,,")
 
 		test(`"__1__3_1__2__".split(/_/)`, ",,1,,3,1,,2,,")
+		test(`"abc".replace(/c(?=d)/, "woo")`, "abc")
 
 		test(`"ab".split(/a*/)`, ",b")
 
