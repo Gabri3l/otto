@@ -66,6 +66,7 @@ func (self Otto) CreateNativeClass(
 				call := FunctionCall{
 					runtime:      self.runtime,
 					eval:         false,
+					ctx:          self.runtime.context(),
 					This:         toValue_object(obj),
 					ArgumentList: argumentList,
 					Otto:         self.runtime.otto,
@@ -167,6 +168,7 @@ func (self Otto) CreateNativeErrorClass(
 				call := FunctionCall{
 					runtime:      self.runtime,
 					eval:         false,
+					ctx:          self.runtime.context(),
 					This:         toValue_object(obj),
 					ArgumentList: argumentList,
 					Otto:         self.runtime.otto,
