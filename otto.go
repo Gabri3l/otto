@@ -665,6 +665,10 @@ func (self Otto) Object(source string) (*Object, error) {
 	return nil, fmt.Errorf("value is not an object")
 }
 
+func (self Otto) NewObject() Value {
+	return toValue_object(self.runtime.newObject())
+}
+
 // ToValue will convert an interface{} value to a value digestible by otto/JavaScript.
 func (self Otto) ToValue(value interface{}) (Value, error) {
 	return self.runtime.safeToValue(value)
