@@ -20,8 +20,18 @@ type _objectClass struct {
 }
 
 func objectEnumerate(self *_object, all bool, each func(string) bool) {
-	for _, name := range self.propertyOrder {
-		if all || self.property[name].enumerable() {
+	self.mu.RLock()
+	propertyOrder := make([]string, len(self.propertyOrder))
+	copy(propertyOrder, self.propertyOrder)
+	self.mu.RUnlock()
+	for _, name := range propertyOrder {
+		var propEnumerable bool
+		if !all {
+			self.mu.RLock()
+			propEnumerable = self.property[name].enumerable()
+			self.mu.RUnlock()
+		}
+		if all || propEnumerable {
 			if !each(name) {
 				return
 			}
@@ -458,7 +468,17 @@ func objectDelete(self *_object, name string, throw bool) bool {
 }
 
 func objectClone(in *_object, out *_object, clone *_clone) *_object {
-	*out = *in
+	in.mu.RLock()
+	defer in.mu.RUnlock()
+	out.mu.Lock()
+	defer out.mu.Unlock()
+
+	out.runtime = clone.runtime
+	out.class = in.class
+	out.objectClass = in.objectClass
+	out.value = in.value
+	out.extensible = in.extensible
+	out.prototype = in.prototype
 
 	out.runtime = clone.runtime
 	if out.prototype != nil {

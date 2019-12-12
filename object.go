@@ -1,5 +1,9 @@
 package otto
 
+import (
+	"sync"
+)
+
 type _object struct {
 	runtime *_runtime
 
@@ -12,6 +16,8 @@ type _object struct {
 
 	property      map[string]_property
 	propertyOrder []string
+
+	mu sync.RWMutex
 }
 
 func newObject(runtime *_runtime, class string) *_object {
@@ -31,6 +37,8 @@ func (self *_object) MemUsage(ctx *MemUsageContext) (uint64, error) {
 	}
 	ctx.VisitObj(self)
 	total := EmptySize
+	self.mu.RLock()
+	defer self.mu.RUnlock()
 	for k, v := range self.property {
 		if val, ok := v.value.(Value); ok {
 			inc, err := val.MemUsage(ctx)
@@ -141,16 +149,22 @@ func (self *_object) enumerate(all bool, each func(string) bool) {
 }
 
 func (self *_object) _exists(name string) bool {
+	self.mu.RLock()
+	defer self.mu.RUnlock()
 	_, exists := self.property[name]
 	return exists
 }
 
 func (self *_object) _read(name string) (_property, bool) {
+	self.mu.RLock()
+	defer self.mu.RUnlock()
 	property, exists := self.property[name]
 	return property, exists
 }
 
 func (self *_object) _write(name string, value interface{}, mode _propertyMode) {
+	self.mu.Lock()
+	defer self.mu.Unlock()
 	if value == nil {
 		value = Value{}
 	}
@@ -162,6 +176,8 @@ func (self *_object) _write(name string, value interface{}, mode _propertyMode) 
 }
 
 func (self *_object) _delete(name string) {
+	self.mu.Lock()
+	defer self.mu.Unlock()
 	_, exists := self.property[name]
 	delete(self.property, name)
 	if exists {
