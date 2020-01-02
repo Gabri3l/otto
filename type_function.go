@@ -229,7 +229,7 @@ func (self *_object) callWithContext(ctx context.Context, this Value, argumentLi
 	case _bindFunctionObject:
 		// TODO Passthrough site, do not enter a scope
 		argumentList = append(fn.argumentList, argumentList...)
-		return fn.target.call(fn.this, argumentList, false, frame)
+		return fn.target.callWithContext(ctx, fn.this, argumentList, false, frame)
 
 	case _nodeFunctionObject:
 		rt := self.runtime
