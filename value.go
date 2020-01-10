@@ -872,7 +872,11 @@ func (self Value) exportNative() interface{} {
 
 // Make a best effort to return a reflect.Value corresponding to reflect.Kind, but
 // fallback to just returning the Go value we have handy.
-func (value Value) toReflectValue(kind reflect.Kind) (reflect.Value, error) {
+func (value Value) toReflectValue(rType reflect.Type) (reflect.Value, error) {
+	kind := rType.Kind()
+	if rType == typeOfValue {
+		return reflect.ValueOf(value), nil
+	}
 	if kind != reflect.Float32 && kind != reflect.Float64 && kind != reflect.Interface {
 		switch value := value.value.(type) {
 		case float32:

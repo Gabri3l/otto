@@ -142,7 +142,8 @@ func TestReflect(t *testing.T) {
 	tt(t, func() {
 		// Testing dbgf
 		// These should panic
-		toValue("Xyzzy").toReflectValue(reflect.Ptr)
+		strPtr := reflect.New(reflect.TypeOf("test")).Type()
+		toValue("Xyzzy").toReflectValue(strPtr)
 		stringToReflectValue("Xyzzy", reflect.Ptr)
 	})
 }

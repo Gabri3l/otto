@@ -317,7 +317,8 @@ func TestExport(t *testing.T) {
 func Test_toReflectValue(t *testing.T) {
 	tt(t, func() {
 		value := toValue(0.0)
-		tmp, err := value.toReflectValue(reflect.Float32)
+		rType := reflect.TypeOf(float32(0))
+		tmp, err := value.toReflectValue(rType)
 		is(tmp.Float(), 0.0)
 		is(err, nil)
 	})
