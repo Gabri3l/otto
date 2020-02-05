@@ -21,6 +21,7 @@ func (self *_runtime) cmpl_evaluate_nodeExpression(node _nodeExpression) Value {
 		default:
 		}
 	}
+	self.waitOneTick()
 
 	switch node := node.(type) {
 

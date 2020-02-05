@@ -231,6 +231,8 @@ import (
 
 	"github.com/robertkrimen/otto/file"
 	"github.com/robertkrimen/otto/registry"
+
+	"golang.org/x/time/rate"
 )
 
 // Otto is the representation of the JavaScript runtime. Each instance of Otto has a self-contained namespace.
@@ -238,7 +240,10 @@ type Otto struct {
 	// Interrupt is a channel for interrupting the runtime. You can use this to halt a long running execution, for example.
 	// See "Halting Problem" for more information.
 	Interrupt chan func()
-	runtime   *_runtime
+
+	// Limter is a rate limiter used to control the speed at which evaluations occur.
+	Limiter *rate.Limiter
+	runtime *_runtime
 }
 
 // New will allocate a new JavaScript runtime
