@@ -68,6 +68,7 @@ type _runtime struct {
 	ctx          context.Context
 	labels       []string // FIXME
 	lck          sync.Mutex
+	ticks        uint64
 }
 
 func (self *_runtime) enterScope(scope *_scope) {

@@ -6,6 +6,7 @@ import (
 )
 
 func (self *_runtime) waitOneTick() {
+	self.ticks++
 	if self.otto.Limiter == nil {
 		return
 	}

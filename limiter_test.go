@@ -23,24 +23,29 @@ func TestLimiter(t *testing.T) {
 	_, err := vm.Eval(script)
 
 	is(err, nil)
+	is(vm.Ticks(), 29)
 	if time.Since(start) > time.Second*time.Duration(limit) {
 		t.Fatalf("expected test to take less than %d seconds", limit)
 	}
 
+	vm = New()
 	vm.Limiter = rate.NewLimiter(rate.Limit(limit), 1)
 	start = time.Now()
 	_, err = vm.Eval(script)
 
 	is(err, nil)
+	is(vm.Ticks(), 29)
 	if time.Since(start) < time.Second*time.Duration(limit) {
 		t.Fatalf("expected test to take more than %d seconds", limit)
 	}
 
+	vm = New()
 	vm.Limiter = rate.NewLimiter(rate.Inf, 1)
 	start = time.Now()
 	_, err = vm.Eval(script)
 
 	is(err, nil)
+	is(vm.Ticks(), 29)
 	if time.Since(start) > time.Second*time.Duration(limit) {
 		t.Fatalf("expected test to take less than %d seconds", limit)
 	}
@@ -48,13 +53,13 @@ func TestLimiter(t *testing.T) {
 	script = `(function t() {
 		try {
 			for (var i = 0; i < 100; i++) {
-            	var a = 1+1;
-            }
+	           	var a = 1+1;
+	           }
 		} catch(e) {
 
 		}
-            
-        }())`
+
+	       }())`
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*2)
 	defer cancel()
 	vm = NewWithContext(ctx)
@@ -68,6 +73,7 @@ func TestLimiter(t *testing.T) {
 		return nil
 	}()
 	is(evalErr, context.DeadlineExceeded)
+	is(vm.Ticks(), 11)
 	if time.Since(start) > time.Second*time.Duration(limit) {
 		t.Fatalf("expected test to take less than %d seconds", limit)
 	}
@@ -89,6 +95,9 @@ func TestLimiter(t *testing.T) {
 		return nil
 	}()
 	is(evalErr, context.Canceled)
+	if vm.Ticks() > 50 {
+		t.Fatal("expected to not process many ticks")
+	}
 	if time.Since(start) > time.Second*time.Duration(limit) {
 		t.Fatalf("expected test to take less than %d seconds", limit)
 	}

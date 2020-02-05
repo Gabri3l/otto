@@ -273,6 +273,10 @@ func (otto *Otto) MemUsage(ctx *MemUsageContext) (uint64, error) {
 	return otto.runtime.MemUsage(ctx)
 }
 
+func (otto *Otto) Ticks() uint64 {
+	return otto.runtime.ticks
+}
+
 func (otto *Otto) clone() *Otto {
 	self := &Otto{
 		runtime: otto.runtime.clone(),
