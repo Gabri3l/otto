@@ -205,11 +205,12 @@ func toPropertyDescriptor(rt *_runtime, value Value) (descriptor _property) {
 
 func (self *_runtime) fromPropertyDescriptor(descriptor _property) *_object {
 	object := self.newObject()
-	if descriptor.isDataDescriptor() {
-		object.defineProperty("value", descriptor.value.(Value), 0111, false)
+	value, isValue := descriptor.value.(Value)
+	getSet, isGetSet := descriptor.value.(_propertyGetSet)
+	if isValue && descriptor.isDataDescriptor() {
+		object.defineProperty("value", value, 0111, false)
 		object.defineProperty("writable", toValue_bool(descriptor.writable()), 0111, false)
-	} else if descriptor.isAccessorDescriptor() {
-		getSet := descriptor.value.(_propertyGetSet)
+	} else if isGetSet && descriptor.isAccessorDescriptor() {
 		get := Value{}
 		if getSet[0] != nil {
 			get = toValue_object(getSet[0])

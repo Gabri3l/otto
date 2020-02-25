@@ -415,7 +415,9 @@ func objectDefineOwnProperty(self *_object, name string, descriptor _property, t
 			// the original property, if necessary
 			value1 := descriptor.value
 			if value1 == nil {
-				value1 = property.value
+				if !(descriptor.writable() && property.isAccessorDescriptor()) {
+					value1 = property.value
+				}
 			} else if newGetSet, isAccessor := descriptor.value.(_propertyGetSet); isAccessor {
 				if newGetSet[0] == &_nilGetSetObject {
 					newGetSet[0] = nil
