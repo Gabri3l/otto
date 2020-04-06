@@ -28,3 +28,27 @@ func TestCreateNativeFunction(t *testing.T) {
 		is(err, "!=", nil)
 	})
 }
+
+func TestFunctionSetNameProperty(t *testing.T) {
+	vm := New()
+	val, err := vm.Run(`(function() { 
+		var testFunc = function() {}; 
+		Object.defineProperty(testFunc, "name", {value: "hello"});
+		return testFunc;
+	})()`)
+	is(err, nil)
+	x, err := val.Object().Get("name")
+	is(err, nil)
+	is(x, "hello")
+
+	// if name already set, it shouldn't be allowed to be overwritten
+	val, err = vm.Run(`(function() { 
+		var testFunc = function test () {}; 
+		Object.defineProperty(testFunc, "name", {value: "hello"});
+		return testFunc;		
+	})()`)
+	is(err, nil)
+	x, err = val.Object().Get("name")
+	is(err, nil)
+	is(x, "test")
+}

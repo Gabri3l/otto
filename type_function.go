@@ -147,7 +147,12 @@ func (runtime *_runtime) newNodeFunctionObject(node *_nodeFunctionLiteral, stash
 		node:  node,
 		stash: stash,
 	}
-	self.defineProperty("name", toValue_string(node.name), 0000, false)
+	var mode _propertyMode
+	if node.name == "" {
+		// allow name to be defined at a later time if defined without one
+		mode = modeOnMask
+	}
+	self.defineProperty("name", toValue_string(node.name), mode, false)
 	self.defineProperty("length", toValue_int(len(node.parameterList)), 0000, false)
 	self.defineOwnProperty("caller", _property{
 		value: _propertyGetSet{
