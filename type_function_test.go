@@ -31,6 +31,7 @@ func TestCreateNativeFunction(t *testing.T) {
 
 func TestFunctionSetNameProperty(t *testing.T) {
 	vm := New()
+
 	val, err := vm.Run(`(function() { 
 		var testFunc = function() {}; 
 		Object.defineProperty(testFunc, "name", {value: "hello"});
@@ -40,4 +41,34 @@ func TestFunctionSetNameProperty(t *testing.T) {
 	x, err := val.Object().Get("name")
 	is(err, nil)
 	is(x, "hello")
+
+	val, err = vm.Run(`(function() { 
+		var testFunc = function hi() {}; 
+		Object.defineProperty(testFunc, "name", {value: "hello"});
+		return testFunc;
+	})()`)
+	is(err, nil)
+	x, err = val.Object().Get("name")
+	is(err, nil)
+	is(x, "hello")
+
+	// verify function name isn't enumerable, taken from global_test
+	call := func(object interface{}, src string, argumentList ...interface{}) Value {
+		var tgt *Object
+		switch object := object.(type) {
+		case Value:
+			tgt = object.Object()
+		case *Object:
+			tgt = object
+		case *_object:
+			tgt = toValue_object(object).Object()
+		default:
+			panic("Here be dragons.")
+		}
+		value, err := tgt.Call(src, argumentList...)
+		is(err, nil)
+		return value
+	}
+
+	is(call(val._object(), "propertyIsEnumerable", "name"), false)
 }

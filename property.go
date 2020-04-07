@@ -12,12 +12,13 @@ type Property struct {
 type _propertyMode int
 
 const (
-	modeWriteMask     _propertyMode = 0700
-	modeEnumerateMask               = 0070
-	modeConfigureMask               = 0007
-	modeOnMask                      = 0111
-	modeOffMask                     = 0000
-	modeSetMask                     = 0222 // If value is 2, then mode is neither "On" nor "Off"
+	modeWriteMask          _propertyMode = 0700
+	modeEnumerateMask                    = 0070
+	modeConfigureMask                    = 0007
+	modeWriteConfigureMask               = 0101 // can write and configure but not enumerable
+	modeOnMask                           = 0111
+	modeOffMask                          = 0000
+	modeSetMask                          = 0222 // If value is 2, then mode is neither "On" nor "Off"
 )
 
 type _propertyGetSet [2]*_object
