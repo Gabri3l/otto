@@ -1,7 +1,6 @@
 package otto
 
 import (
-	"fmt"
 	"math"
 	"regexp"
 	"strconv"
@@ -99,5 +98,5 @@ func (value Value) string() string {
 	case *_object:
 		return value.DefaultValue(defaultValueHintString).string()
 	}
-	panic(fmt.Errorf("%v.string( %T)", value.value, value.value))
+	return ""
 }

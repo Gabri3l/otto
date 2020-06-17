@@ -1,7 +1,6 @@
 package otto
 
 import (
-	"fmt"
 	"math"
 	"regexp"
 	"strconv"
@@ -81,7 +80,7 @@ func (value Value) float64() float64 {
 	case *_object:
 		return value.DefaultValue(defaultValueHintNumber).float64()
 	}
-	panic(fmt.Errorf("toFloat(%T)", value.value))
+	return math.NaN()
 }
 
 const (

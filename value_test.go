@@ -100,6 +100,8 @@ func TestToBoolean(t *testing.T) {
 		is(NullValue(), false)
 		is([]uint16{}, false)
 		is([]uint16{0x68, 0x65, 0x6c, 0x6c, 0x6f}, true)
+		type thing struct{}
+		is(Value{kind: 99}, true)
 	})
 }
 
@@ -115,7 +117,7 @@ func TestToFloat(t *testing.T) {
 			is(1, 1)
 			is(0, 0)
 			is(NullValue(), 0)
-			//is(newObjectValue(), math.NaN())
+			is([]uint16{1, 2, 3}, math.NaN())
 		}
 		is(math.IsNaN(UndefinedValue().float64()), true)
 	})
@@ -132,6 +134,7 @@ func TestToString(t *testing.T) {
 		is(NullValue(), "null")
 		is(toValue(true), true)
 		is(toValue(false), false)
+		is(Value{value: []uint8{1, 2, 3}, kind: 99}.string(), "")
 	})
 }
 

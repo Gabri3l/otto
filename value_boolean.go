@@ -1,7 +1,6 @@
 package otto
 
 import (
-	"fmt"
 	"math"
 	"reflect"
 	"unicode/utf16"
@@ -36,8 +35,5 @@ func (value Value) bool() bool {
 	case []uint16:
 		return 0 != len(utf16.Decode(value))
 	}
-	if value.IsObject() {
-		return true
-	}
-	panic(fmt.Errorf("toBoolean(%T)", value.value))
+	return true
 }
