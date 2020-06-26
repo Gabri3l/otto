@@ -20,10 +20,7 @@ func (self *_runtime) waitOneTick() {
 		ctx = context.Background()
 	}
 	if waitErr := self.otto.Limiter.Wait(ctx); waitErr != nil {
-		if self.ctx == nil {
-			panic(waitErr)
-		}
-		if ctxErr := self.ctx.Err(); ctxErr != nil {
+		if ctxErr := ctx.Err(); ctxErr != nil {
 			panic(ctxErr)
 		}
 		if strings.Contains(waitErr.Error(), "would exceed") {
