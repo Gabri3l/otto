@@ -10,7 +10,12 @@ func (self *_runtime) waitOneTick() {
 	if self.otto.Limiter == nil {
 		return
 	}
-	ctx := self.ctx
+	var ctx context.Context
+	if self.scope != nil {
+		ctx = self.scope.context
+	} else {
+		ctx = self.ctx
+	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
