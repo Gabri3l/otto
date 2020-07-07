@@ -149,12 +149,13 @@ func builtinString_match(call FunctionCall) Value {
 			return Value{} // !match
 		}
 		matchCount = len(result)
-		valueArray := make([]Value, matchCount)
+		valueArray := call.runtime.newArray(uint32(matchCount))
 		for index := 0; index < matchCount; index++ {
-			valueArray[index] = toValue_string(target[result[index][0]:result[index][1]])
+			str := toValue_string(target[result[index][0]:result[index][1]])
+			valueArray.defineProperty(strconv.FormatInt(int64(index), 10), str, 0111, false)
 		}
 		matcher.put("lastIndex", toValue_int(result[matchCount-1][1]), true)
-		return toValue_object(call.runtime.newArrayOf(valueArray))
+		return toValue_object(valueArray)
 	}
 }
 
@@ -231,6 +232,9 @@ func builtinString_replace(call FunctionCall) Value {
 					result = append(result, target[lastIndex:match[0]]...)
 				}
 				matchCount := len(match) / 2
+				if matchCount > maxArgs {
+					panic(call.runtime.panicTypeError(errMaxArgs))
+				}
 				argumentList := make([]Value, matchCount+2)
 				for index := 0; index < matchCount; index++ {
 					offset := 2 * index
@@ -394,12 +398,12 @@ func builtinString_split(call FunctionCall) Value {
 			split = split[:limit]
 		}
 
-		valueArray := make([]Value, len(split))
+		valueArray := call.runtime.newArray(uint32(len(split)))
 		for index, value := range split {
-			valueArray[index] = toValue_string(value)
+			valueArray.defineProperty(strconv.FormatInt(int64(index), 10), toValue_string(value), 0111, false)
 		}
 
-		return toValue_object(call.runtime.newArrayOf(valueArray))
+		return toValue_object(valueArray)
 	}
 }
 

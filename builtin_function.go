@@ -2,6 +2,7 @@ package otto
 
 import (
 	"fmt"
+	"math"
 	"regexp"
 	"strings"
 	"unicode"
@@ -67,6 +68,12 @@ func builtinFunction_toString(call FunctionCall) Value {
 	panic(call.runtime.panicTypeError("Function.toString()"))
 }
 
+// (2^15) - 1 (max int16) is a reasonable limit for how many arguments to apply to a function and can
+// be raised if issues are encountered with such a limit.
+const maxArgs = math.MaxInt16
+
+var errMaxArgs = fmt.Sprintf("Too many arguments in function call (only %d allowed)", maxArgs)
+
 func builtinFunction_apply(call FunctionCall) Value {
 	if !call.This.isCallable() {
 		panic(call.runtime.panicTypeError())
@@ -88,6 +95,9 @@ func builtinFunction_apply(call FunctionCall) Value {
 	arrayObject := argumentList._object()
 	thisObject := call.thisObject()
 	length := int64(toUint32(arrayObject.get("length")))
+	if length > maxArgs {
+		panic(call.runtime.panicTypeError(errMaxArgs))
+	}
 	valueArray := make([]Value, length)
 	for index := int64(0); index < length; index++ {
 		valueArray[index] = arrayObject.get(arrayIndexToString(index))

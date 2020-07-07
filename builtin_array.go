@@ -1,8 +1,8 @@
 package otto
 
 import (
+	"bytes"
 	"strconv"
-	"strings"
 )
 
 // Array
@@ -35,36 +35,11 @@ func builtinArray_toString(call FunctionCall) Value {
 	return builtinObject_toString(call)
 }
 
-func builtinArray_toLocaleString(call FunctionCall) Value {
-	separator := ","
-	thisObject := call.thisObject()
-	length := int64(toUint32(thisObject.get("length")))
-	if length == 0 {
-		return toValue_string("")
-	}
-	stringList := make([]string, 0, length)
-	for index := int64(0); index < length; index += 1 {
-		value := thisObject.get(arrayIndexToString(index))
-		stringValue := ""
-		switch value.kind {
-		case valueEmpty, valueUndefined, valueNull:
-		default:
-			object := call.runtime.toObject(value)
-			toLocaleString := object.get("toLocaleString")
-			if !toLocaleString.isCallable() {
-				panic(call.runtime.panicTypeError())
-			}
-			stringValue = toLocaleString.call(call.runtime, toValue_object(object)).string()
-		}
-		stringList = append(stringList, stringValue)
-	}
-	return toValue_string(strings.Join(stringList, separator))
-}
-
 func builtinArray_concat(call FunctionCall) Value {
 	thisObject := call.thisObject()
-	valueArray := []Value{}
+	valueArray := call.runtime.newArray(0)
 	source := append([]Value{toValue_object(thisObject)}, call.ArgumentList...)
+	var newLength uint32
 	for _, item := range source {
 		switch item.kind {
 		case valueObject:
@@ -72,21 +47,32 @@ func builtinArray_concat(call FunctionCall) Value {
 			if isArray(object) {
 				length := object.get("length").number().int64
 				for index := int64(0); index < length; index += 1 {
+					prevLength := newLength
+					newLength++
 					name := strconv.FormatInt(index, 10)
-					if object.hasProperty(name) {
-						valueArray = append(valueArray, object.get(name))
-					} else {
-						valueArray = append(valueArray, Value{})
+					if !object.hasProperty(name) {
+						continue
 					}
+					value := object.get(name)
+					if value.isEmpty() {
+						continue
+					}
+					valueArray.defineProperty(strconv.FormatUint(uint64(prevLength), 10), value, 0111, false)
 				}
 				continue
 			}
 			fallthrough
 		default:
-			valueArray = append(valueArray, item)
+			prevLength := newLength
+			newLength++
+			if item.isEmpty() {
+				continue
+			}
+			valueArray.defineProperty(strconv.FormatUint(uint64(prevLength), 10), item, 0111, false)
 		}
 	}
-	return toValue_object(call.runtime.newArrayOf(valueArray))
+	valueArray.defineProperty("length", toValue_uint32(newLength), 0100, false)
+	return toValue_object(valueArray)
 }
 
 func builtinArray_shift(call FunctionCall) Value {
@@ -151,7 +137,7 @@ func builtinArray_join(call FunctionCall) Value {
 	if length == 0 {
 		return toValue_string("")
 	}
-	stringList := make([]string, 0, length)
+	var finalStr bytes.Buffer
 	for index := int64(0); index < length; index += 1 {
 		value := thisObject.get(arrayIndexToString(index))
 		stringValue := ""
@@ -160,9 +146,39 @@ func builtinArray_join(call FunctionCall) Value {
 		default:
 			stringValue = value.string()
 		}
-		stringList = append(stringList, stringValue)
+		finalStr.WriteString(stringValue)
+		finalStr.WriteString(separator)
 	}
-	return toValue_string(strings.Join(stringList, separator))
+	finalStr.Truncate(finalStr.Len() - len(separator))
+	return toValue_string(finalStr.String())
+}
+
+func builtinArray_toLocaleString(call FunctionCall) Value {
+	separator := ","
+	thisObject := call.thisObject()
+	length := int64(toUint32(thisObject.get("length")))
+	if length == 0 {
+		return toValue_string("")
+	}
+	var finalStr bytes.Buffer
+	for index := int64(0); index < length; index += 1 {
+		value := thisObject.get(arrayIndexToString(index))
+		stringValue := ""
+		switch value.kind {
+		case valueEmpty, valueUndefined, valueNull:
+		default:
+			object := call.runtime.toObject(value)
+			toLocaleString := object.get("toLocaleString")
+			if !toLocaleString.isCallable() {
+				panic(call.runtime.panicTypeError())
+			}
+			stringValue = toLocaleString.call(call.runtime, toValue_object(object)).string()
+		}
+		finalStr.WriteString(stringValue)
+		finalStr.WriteString(separator)
+	}
+	finalStr.Truncate(finalStr.Len() - 1)
+	return toValue_string(finalStr.String())
 }
 
 func builtinArray_splice(call FunctionCall) Value {
@@ -174,12 +190,16 @@ func builtinArray_splice(call FunctionCall) Value {
 	if arg, ok := call.getArgument(1); ok {
 		deleteCount = valueToRangeIndex(arg, length-start, true)
 	}
-	valueArray := make([]Value, deleteCount)
+	valueArray := call.runtime.newArray(uint32(deleteCount))
 
 	for index := int64(0); index < deleteCount; index++ {
 		indexString := arrayIndexToString(int64(start + index))
 		if thisObject.hasProperty(indexString) {
-			valueArray[index] = thisObject.get(indexString)
+			value := thisObject.get(indexString)
+			if value.isEmpty() {
+				continue
+			}
+			valueArray.defineProperty(strconv.FormatInt(index, 10), value, 0111, false)
 		}
 	}
 
@@ -242,7 +262,7 @@ func builtinArray_splice(call FunctionCall) Value {
 	}
 	thisObject.put("length", toValue_int64(int64(length)+itemCount-deleteCount), true)
 
-	return toValue_object(call.runtime.newArrayOf(valueArray))
+	return toValue_object(valueArray)
 }
 
 func builtinArray_slice(call FunctionCall) Value {
@@ -256,16 +276,21 @@ func builtinArray_slice(call FunctionCall) Value {
 		return toValue_object(call.runtime.newArray(0))
 	}
 	sliceLength := end - start
-	sliceValueArray := make([]Value, sliceLength)
+	sliceValueArray := call.runtime.newArray(uint32(sliceLength))
 
 	for index := int64(0); index < sliceLength; index++ {
 		from := arrayIndexToString(index + start)
-		if thisObject.hasProperty(from) {
-			sliceValueArray[index] = thisObject.get(from)
+		if !thisObject.hasProperty(from) {
+			continue
 		}
+		value := thisObject.get(from)
+		if value.isEmpty() {
+			continue
+		}
+		sliceValueArray.defineProperty(strconv.FormatInt(index, 10), value, 0111, false)
 	}
 
-	return toValue_object(call.runtime.newArrayOf(sliceValueArray))
+	return toValue_object(sliceValueArray)
 }
 
 func builtinArray_unshift(call FunctionCall) Value {
@@ -492,7 +517,7 @@ func builtinArray_indexOf(call FunctionCall) Value {
 			index = -1
 		}
 		for ; index >= 0 && index < length; index++ {
-			name := arrayIndexToString(int64(index))
+			name := arrayIndexToString(index)
 			if !thisObject.hasProperty(name) {
 				continue
 			}
@@ -521,7 +546,7 @@ func builtinArray_lastIndexOf(call FunctionCall) Value {
 		return toValue_int(-1)
 	}
 	for ; index >= 0; index-- {
-		name := arrayIndexToString(int64(index))
+		name := arrayIndexToString(index)
 		if !thisObject.hasProperty(name) {
 			continue
 		}
@@ -590,17 +615,21 @@ func builtinArray_map(call FunctionCall) Value {
 	thisObject := call.thisObject()
 	this := toValue_object(thisObject)
 	if iterator := call.Argument(0); iterator.isCallable() {
-		length := int64(toUint32(thisObject.get("length")))
+		length := toUint32(thisObject.get("length"))
 		callThis := call.Argument(1)
-		values := make([]Value, length)
-		for index := int64(0); index < length; index++ {
-			if key := arrayIndexToString(index); thisObject.hasProperty(key) {
-				values[index] = iterator.call(call.runtime, callThis, thisObject.get(key), index, this)
-			} else {
-				values[index] = Value{}
+		mappedArray := call.runtime.newArray(length)
+		for index := uint32(0); index < length; index++ {
+			key := strconv.FormatUint(uint64(index), 10)
+			if !thisObject.hasProperty(key) {
+				continue
 			}
+			value := iterator.call(call.runtime, callThis, thisObject.get(key), index, this)
+			if value.isEmpty() {
+				continue
+			}
+			mappedArray.defineProperty(strconv.FormatInt(int64(index), 10), value, 0111, false)
 		}
-		return toValue_object(call.runtime.newArrayOf(values))
+		return toValue_object(mappedArray)
 	}
 	panic(call.runtime.panicTypeError())
 }
@@ -609,18 +638,28 @@ func builtinArray_filter(call FunctionCall) Value {
 	thisObject := call.thisObject()
 	this := toValue_object(thisObject)
 	if iterator := call.Argument(0); iterator.isCallable() {
-		length := int64(toUint32(thisObject.get("length")))
+		length := toUint32(thisObject.get("length"))
 		callThis := call.Argument(1)
-		values := make([]Value, 0)
-		for index := int64(0); index < length; index++ {
-			if key := arrayIndexToString(index); thisObject.hasProperty(key) {
-				value := thisObject.get(key)
-				if iterator.call(call.runtime, callThis, value, index, this).bool() {
-					values = append(values, value)
+		filteredArray := call.runtime.newArray(0)
+		var newLength uint32
+		for index := uint32(0); index < length; index++ {
+			key := strconv.FormatUint(uint64(index), 10)
+			var value Value
+			if thisObject.hasProperty(key) {
+				value = thisObject.get(key)
+			}
+			if iterator.call(call.runtime, callThis, value, index, this).bool() {
+				prevLength := newLength
+				newLength++
+				if value.isEmpty() {
+					// do not waste memory on an empty value
+					continue
 				}
+				filteredArray.defineProperty(strconv.FormatInt(int64(prevLength), 10), value, 0111, false)
 			}
 		}
-		return toValue_object(call.runtime.newArrayOf(values))
+		filteredArray.defineProperty("length", toValue_uint32(newLength), 0100, false)
+		return toValue_object(filteredArray)
 	}
 	panic(call.runtime.panicTypeError())
 }
