@@ -1,6 +1,7 @@
 package otto
 
 import (
+    "strings"
     "testing"
 )
 
@@ -108,6 +109,12 @@ func TestArray_toLocaleString(t *testing.T) {
         test(`
             [ 3.14159, "abc", undefined, new Date(0) ].toLocaleString();
         `, "3.14159,abc,,1970-01-01 00:00:00")
+
+        test(`
+                var arr = [ 3.14159, "abc", undefined, new Date(0) ];
+                arr.length = 10;
+                arr.toLocaleString();
+            `, "3.14159,abc,,1970-01-01 00:00:00,,,,,,")
 
         test(`raise:
             [ { toLocaleString: undefined } ].toLocaleString();
@@ -250,9 +257,11 @@ func TestArray_slice(t *testing.T) {
             jkl = abc.slice(3,-1);
             mno = abc.slice(2,-1);
             pqr = abc.slice(-1, -10);
+            abc.length = 10;
+            stu = abc.slice(2,-1);
 
-            [ abc, def, ghi, jkl, mno, pqr ].join(";");
-        `, "0,1,2,3;0,1,2,3;1,2,3;;2;")
+            [ abc, def, ghi, jkl, mno, pqr, stu ].join(";");
+        `, "0,1,2,3,,,,,,;0,1,2,3;1,2,3;;2;;2,3,,,,,")
 
         // Array.protoype.slice is generic
         test(`
@@ -640,6 +649,13 @@ func TestArray_map(t *testing.T) {
 
             [11].map(abc, Math)[0];
         `, true)
+
+        test(`
+            var array1 = [1, 4, 9, 16];
+            array1.length = 999;
+            array1[7] = 25;
+            array1.map(function(x) { return x * 2 });
+        `, "2,8,18,32,,,,50"+strings.Repeat(",", 999-8))
     })
 }
 
@@ -654,6 +670,13 @@ func TestArray_filter(t *testing.T) {
         test(`[1,2,3].filter(function() { return false }).length`, 0)
 
         test(`[1,2,3].filter(function() { return true })`, "1,2,3")
+
+        test(`
+            var array1 = [1, 4, 9, 16];
+            array1.length = 999;
+            array1[7] = 25;
+            array1.filter(function(x) { return true });
+        `, "1,4,9,16,,,,25"+strings.Repeat(",", 999-8))
     })
 }
 

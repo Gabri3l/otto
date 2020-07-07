@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -79,13 +80,13 @@ func builtinJSON_parseWalk(ctx _builtinJSON_parseContext, rawValue interface{}) 
 	case float64:
 		return toValue_float64(value), true
 	case []interface{}:
-		arrayValue := make([]Value, len(value))
+		arrayValue := ctx.call.runtime.newArray(uint32(len(value)))
 		for index, rawValue := range value {
 			if value, exists := builtinJSON_parseWalk(ctx, rawValue); exists {
-				arrayValue[index] = value
+				arrayValue.defineProperty(strconv.FormatInt(int64(index), 10), value, 0111, false)
 			}
 		}
-		return toValue_object(ctx.call.runtime.newArrayOf(arrayValue)), true
+		return toValue_object(arrayValue), true
 	case map[string]interface{}:
 		object := ctx.call.runtime.newObject()
 		for name, rawValue := range value {
@@ -116,9 +117,8 @@ func builtinJSON_stringify(call FunctionCall) Value {
 		if isArray(replacer) {
 			length := objectLength(replacer)
 			seen := map[string]bool{}
-			propertyList := make([]string, length)
-			length = 0
-			for index, _ := range propertyList {
+			var propertyList []string
+			for index := uint32(0); index < length; index++ {
 				value := replacer.get(arrayIndexToString(int64(index)))
 				switch value.kind {
 				case valueObject:
@@ -138,10 +138,9 @@ func builtinJSON_stringify(call FunctionCall) Value {
 					continue
 				}
 				seen[name] = true
-				length += 1
-				propertyList[index] = name
+				propertyList = append(propertyList, name)
 			}
-			ctx.propertyList = propertyList[0:length]
+			ctx.propertyList = propertyList
 		} else if replacer.class == "Function" {
 			value := toValue_object(replacer)
 			ctx.replacerFunction = &value
@@ -190,6 +189,37 @@ func builtinJSON_stringify(call FunctionCall) Value {
 		valueJSON = valueJSON1.Bytes()
 	}
 	return toValue_string(string(valueJSON))
+}
+
+type sparseArray struct {
+	arr map[uint32]interface{}
+	len uint32
+}
+
+var nullArrValue = []byte("null,")
+
+func (arr sparseArray) MarshalJSON() ([]byte, error) {
+	if arr.len == 0 {
+		return []byte("[]"), nil
+	}
+	var buf bytes.Buffer
+	buf.WriteString("[")
+	for index := uint32(0); index < arr.len; index++ {
+		val, ok := arr.arr[index]
+		if !ok {
+			buf.Write(nullArrValue)
+			continue
+		}
+		md, err := json.Marshal(val)
+		if err != nil {
+			return nil, err
+		}
+		buf.Write(md)
+		buf.WriteString(",")
+	}
+	buf.Truncate(buf.Len() - 1)
+	buf.WriteString("]")
+	return buf.Bytes(), nil
 }
 
 func builtinJSON_stringifyWalk(ctx _builtinJSON_stringifyContext, key string, holder *_object) (interface{}, bool) {
@@ -265,11 +295,11 @@ func builtinJSON_stringifyWalk(ctx _builtinJSON_stringifyContext, key string, ho
 			default:
 				panic(ctx.call.runtime.panicTypeError(fmt.Sprintf("JSON.stringify: invalid length: %v (%[1]T)", value)))
 			}
-			array := make([]interface{}, length)
-			for index, _ := range array {
+			array := sparseArray{arr: map[uint32]interface{}{}, len: length}
+			for index := uint32(0); index < length; index++ {
 				name := arrayIndexToString(int64(index))
 				value, _ := builtinJSON_stringifyWalk(ctx, name, holder)
-				array[index] = value
+				array.arr[index] = value
 			}
 			return array, true
 		} else if holder.class != "Function" {

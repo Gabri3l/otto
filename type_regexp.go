@@ -2,6 +2,7 @@ package otto
 
 import (
 	"fmt"
+	"strconv"
 	"unicode/utf8"
 
 	"github.com/robertkrimen/otto/parser"
@@ -134,14 +135,14 @@ func execRegExp(this *_object, target string) (match bool, result []int) {
 
 func execResultToArray(runtime *_runtime, target string, result []int) *_object {
 	captureCount := len(result) / 2
-	valueArray := make([]Value, captureCount)
+	valueArray := runtime.newArray(uint32(captureCount))
 	for index := 0; index < captureCount; index++ {
 		offset := 2 * index
-		if result[offset] != -1 {
-			valueArray[index] = toValue_string(target[result[offset]:result[offset+1]])
-		} else {
-			valueArray[index] = Value{}
+		if result[offset] == -1 {
+			continue
 		}
+		str := toValue_string(target[result[offset]:result[offset+1]])
+		valueArray.defineProperty(strconv.FormatInt(int64(index), 10), str, 0111, false)
 	}
 	matchIndex := result[0]
 	if matchIndex != 0 {
@@ -153,8 +154,7 @@ func execResultToArray(runtime *_runtime, target string, result []int) *_object 
 			index += size
 		}
 	}
-	match := runtime.newArrayOf(valueArray)
-	match.defineProperty("input", toValue_string(target), 0111, false)
-	match.defineProperty("index", toValue_int(matchIndex), 0111, false)
-	return match
+	valueArray.defineProperty("input", toValue_string(target), 0111, false)
+	valueArray.defineProperty("index", toValue_int(matchIndex), 0111, false)
+	return valueArray
 }

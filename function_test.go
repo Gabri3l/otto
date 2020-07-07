@@ -1,41 +1,41 @@
 package otto
 
 import (
-	"testing"
+    "testing"
 )
 
 func TestFunction(t *testing.T) {
-	tt(t, func() {
-		test, _ := test()
+    tt(t, func() {
+        test, _ := test()
 
-		test(`
+        test(`
             var abc = Object.getOwnPropertyDescriptor(Function, "prototype");
             [   [ typeof Function.prototype, typeof Function.prototype.length, Function.prototype.length ],
                 [ abc.writable, abc.enumerable, abc.configurable ] ];
         `, "function,number,0,false,false,false")
-	})
+    })
 }
 
 func Test_argumentList2parameterList(t *testing.T) {
-	tt(t, func() {
-		is(argumentList2parameterList([]Value{toValue("abc, def"), toValue("ghi")}), []string{"abc", "def", "ghi"})
-	})
+    tt(t, func() {
+        is(argumentList2parameterList([]Value{toValue("abc, def"), toValue("ghi")}), []string{"abc", "def", "ghi"})
+    })
 }
 
 func TestFunction_new(t *testing.T) {
-	tt(t, func() {
-		test, _ := test()
+    tt(t, func() {
+        test, _ := test()
 
-		test(`raise:
+        test(`raise:
             new Function({});
         `, "SyntaxError: Unexpected identifier")
 
-		test(`
+        test(`
             var abc = Function("def, ghi", "jkl", "return def+ghi+jkl");
             [ typeof abc, abc instanceof Function, abc("ab", "ba", 1) ];
         `, "function,true,abba1")
 
-		test(`raise:
+        test(`raise:
             var abc = {
                 toString: function() { throw 1; }
             };
@@ -46,8 +46,8 @@ func TestFunction_new(t *testing.T) {
             ghi;
         `, "1")
 
-		// S15.3.2.1_A3_T10
-		test(`raise:
+        // S15.3.2.1_A3_T10
+        test(`raise:
             var abc = {
                 toString: function() { return "z;x"; }
             };
@@ -56,39 +56,44 @@ func TestFunction_new(t *testing.T) {
             ghi;
         `, "SyntaxError: Unexpected token ;")
 
-		test(`raise:
+        test(`raise:
             var abc;
             var def = "return true";
             var ghi = new Function(null, def);
             ghi;
         `, "SyntaxError: Unexpected token null")
-	})
+    })
 }
 
 func TestFunction_apply(t *testing.T) {
-	tt(t, func() {
-		test, _ := test()
+    tt(t, func() {
+        test, _ := test()
 
-		test(`Function.prototype.apply.length`, 2)
-		test(`String.prototype.substring.apply("abc", [1, 11])`, "bc")
-	})
+        test(`Function.prototype.apply.length`, 2)
+        test(`String.prototype.substring.apply("abc", [1, 11])`, "bc")
+        test(`raise:
+            var args = [1, 11];
+            args.length = 32768;
+            String.prototype.substring.apply("abc", args);
+        `, "TypeError: Too many arguments in function call (only 32767 allowed)")
+    })
 }
 
 func TestFunction_call(t *testing.T) {
-	tt(t, func() {
-		test, _ := test()
+    tt(t, func() {
+        test, _ := test()
 
-		test(`Function.prototype.call.length`, 1)
-		test(`String.prototype.substring.call("abc", 1, 11)`, "bc")
-	})
+        test(`Function.prototype.call.length`, 1)
+        test(`String.prototype.substring.call("abc", 1, 11)`, "bc")
+    })
 }
 
 func TestFunctionArguments(t *testing.T) {
-	tt(t, func() {
-		test, _ := test()
+    tt(t, func() {
+        test, _ := test()
 
-		// Should not be able to delete arguments
-		test(`
+        // Should not be able to delete arguments
+        test(`
             function abc(def, arguments){
                 delete def;
                 return def;
@@ -96,8 +101,8 @@ func TestFunctionArguments(t *testing.T) {
             abc(1);
         `, 1)
 
-		// Again, should not be able to delete arguments
-		test(`
+        // Again, should not be able to delete arguments
+        test(`
             function abc(def){
                 delete def;
                 return def;
@@ -105,15 +110,15 @@ func TestFunctionArguments(t *testing.T) {
             abc(1);
         `, 1)
 
-		// Test typeof of a function argument
-		test(`
+        // Test typeof of a function argument
+        test(`
             function abc(def, ghi, jkl){
                 return typeof jkl
             }
             abc("1st", "2nd", "3rd", "4th", "5th");
         `, "string")
 
-		test(`
+        test(`
             function abc(def, ghi, jkl){
                 arguments[0] = 3.14;
                 arguments[1] = 'Nothing happens';
@@ -123,18 +128,18 @@ func TestFunctionArguments(t *testing.T) {
             }
             abc(-1, 4.2, 314);
         `, true)
-	})
+    })
 }
 
 func TestFunctionDeclarationInFunction(t *testing.T) {
-	tt(t, func() {
-		test, _ := test()
+    tt(t, func() {
+        test, _ := test()
 
-		// Function declarations happen AFTER parameter/argument declarations
-		// That is, a function declared within a function will shadow/overwrite
-		// declared parameters
+        // Function declarations happen AFTER parameter/argument declarations
+        // That is, a function declared within a function will shadow/overwrite
+        // declared parameters
 
-		test(`
+        test(`
             function abc(def){
                 return def;
                 function def(){
@@ -143,14 +148,14 @@ func TestFunctionDeclarationInFunction(t *testing.T) {
             }
             typeof abc();
         `, "function")
-	})
+    })
 }
 
 func TestArguments_defineOwnProperty(t *testing.T) {
-	tt(t, func() {
-		test, _ := test()
+    tt(t, func() {
+        test, _ := test()
 
-		test(`
+        test(`
             var abc;
             var def = true;
             var ghi = {};
@@ -176,16 +181,16 @@ func TestArguments_defineOwnProperty(t *testing.T) {
             }(0, 1, 2));
             [ abc.value, abc.writable, abc.enumerable, abc.configurable, def, ghi["1"] ];
         `, "42,false,false,false,true,1")
-	})
+    })
 }
 
 func TestFunction_bind(t *testing.T) {
-	tt(t, func() {
-		test, _ := test()
+    tt(t, func() {
+        test, _ := test()
 
-		defer mockUTC()()
+        defer mockUTC()()
 
-		test(`
+        test(`
             abc = function(){
                 return "abc";
             };
@@ -193,7 +198,7 @@ func TestFunction_bind(t *testing.T) {
             [ typeof def.prototype, typeof def.hasOwnProperty, def.hasOwnProperty("caller"), def.hasOwnProperty("arguments"), def() ];
         `, "object,function,true,true,abc")
 
-		test(`
+        test(`
             abc = function(){
                 return arguments[1];
             };
@@ -202,7 +207,7 @@ func TestFunction_bind(t *testing.T) {
             [ def(), def("def"), ghi("def") ];
         `, ",def,ghi")
 
-		test(`
+        test(`
             var abc = function () {};
             var ghi;
             try {
@@ -220,18 +225,18 @@ func TestFunction_bind(t *testing.T) {
             [ ghi ];
         `, "true")
 
-		test(`
+        test(`
             var abc = function (def, ghi) {};
             var jkl = abc.bind({});
             var mno = abc.bind({}, 1, 2);
             [ jkl.length, mno.length ];
         `, "2,0")
 
-		test(`raise:
+        test(`raise:
             Math.bind();
         `, "TypeError: 'bind' is not a function")
 
-		test(`
+        test(`
             function construct(fn, arguments) {
                 var bound = Function.prototype.bind.apply(fn, [null].concat(arguments));
                 return new bound();
@@ -240,7 +245,7 @@ func TestFunction_bind(t *testing.T) {
             Object.prototype.toString.call(abc);
         `, "[object Date]")
 
-		test(`
+        test(`
             var fn = function (x, y, z) {
                 var result = {};
                 result.abc = x + y + z;
@@ -252,94 +257,94 @@ func TestFunction_bind(t *testing.T) {
             [ result.hasOwnProperty("abc"), result.hasOwnProperty("def"), result.abc, result.def ];
         `, "true,true,abc,true")
 
-		test(`
+        test(`
             abc = function(){
                 return "abc";
             };
             def = abc.bind();
             def.toString();
         `, "function () { [native code] }")
-	})
+    })
 }
 
 func TestFunction_toString(t *testing.T) {
-	tt(t, func() {
-		test, _ := test()
+    tt(t, func() {
+        test, _ := test()
 
-		test(`raise:
+        test(`raise:
             Function.prototype.toString.call(undefined);
         `, "TypeError")
 
-		test(`
+        test(`
             abc = function()   {       return -1    ;
 }
             1;
             abc.toString();
         `, "function()   {       return -1    ;\n}")
-	})
+    })
 }
 
 func TestFunction_length(t *testing.T) {
-	tt(t, func() {
-		test, _ := test()
+    tt(t, func() {
+        test, _ := test()
 
-		test(`function a(x, y) {}; a.length`, 2)
-	})
+        test(`function a(x, y) {}; a.length`, 2)
+    })
 }
 
 func TestFunction_name(t *testing.T) {
-	tt(t, func() {
-		test, _ := test()
+    tt(t, func() {
+        test, _ := test()
 
-		test(`function a() {}; a.name`, "a")
+        test(`function a() {}; a.name`, "a")
 
-		test(`function a() {}; var b = a.bind(); b.name`, "bound a")
-	})
+        test(`function a() {}; var b = a.bind(); b.name`, "bound a")
+    })
 }
 
 func TestFunction_caller(t *testing.T) {
-	tt(t, func() {
-		test, vm := test()
+    tt(t, func() {
+        test, vm := test()
 
-		vm.Set("n", func(v Value) Value {
-			r, err := v.Call(UndefinedValue())
-			if err != nil {
-				panic(err)
-			}
+        vm.Set("n", func(v Value) Value {
+            r, err := v.Call(UndefinedValue())
+            if err != nil {
+                panic(err)
+            }
 
-			return r
-		})
+            return r
+        })
 
-		test(`
+        test(`
             function a() { return a.caller; };
             a()
         `, NullValue())
 
-		test(`
+        test(`
             function a() { return a.caller === b; };
             function b() { return a(); }
             b()
         `, true)
 
-		test(`
+        test(`
             function a() { return a.caller === b && b.caller === c; }
             function b() { return a(); }
             function c() { return b(); }
             c();
         `, true)
 
-		test(`
+        test(`
             function a() { return a.caller === b && b.caller === n && n.caller === c; }
             function b() { return a(); }
             function c() { return n(b); }
             c()
         `, true)
 
-		test(`
+        test(`
             function e() { return e.caller === g && f.caller === g && g.caller === f; }
             function f(n) { return g(n - 1); }
             function g(n) { return n > 0 ? f(n) : e(); }
             f(2);
         `, true)
-	})
+    })
 }
