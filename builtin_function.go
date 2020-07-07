@@ -68,8 +68,8 @@ func builtinFunction_toString(call FunctionCall) Value {
 	panic(call.runtime.panicTypeError("Function.toString()"))
 }
 
-// (2^15) - 1 (max int16) is a reasonable limit for how many arguments to apply to a function and can raised if
-// issues are encountered with such a low limit.
+// (2^15) - 1 (max int16) is a reasonable limit for how many arguments to apply to a function and can
+// be raised if issues are encountered with such a limit.
 const maxArgs = math.MaxInt16
 
 var errMaxArgs = fmt.Sprintf("Too many arguments in function call (only %d allowed)", maxArgs)
