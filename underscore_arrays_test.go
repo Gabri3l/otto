@@ -132,12 +132,12 @@ func Test_underscore_arrays_6(t *testing.T) {
   test("without", function() {
     var list = [1, 2, 1, 0, 3, 1, 4];
     equal(_.without(list, 0, 1).join(', '), '2, 3, 4', 'can remove all instances of an object');
-    // var result = (function(){ return _.without(arguments, 0, 1); })(1, 2, 1, 0, 3, 1, 4);
-    // equal(result.join(', '), '2, 3, 4', 'works on an arguments object');
+    var result = (function(){ return _.without(arguments, 0, 1); })(1, 2, 1, 0, 3, 1, 4);
+    equal(result.join(', '), '2, 3, 4', 'works on an arguments object');
 
-    // var list = [{one : 1}, {two : 2}];
-    // ok(_.without(list, {one : 1}).length == 2, 'uses real object identity for comparisons.');
-    // ok(_.without(list, list[0]).length == 1, 'ditto.');
+    var list = [{one : 1}, {two : 2}];
+    ok(_.without(list, {one : 1}).length == 2, 'uses real object identity for comparisons.');
+    ok(_.without(list, list[0]).length == 1, 'ditto.');
   });
         `)
 	})
