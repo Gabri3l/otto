@@ -13,7 +13,8 @@ type Regexp struct {
 // New creates a new re2 Regexp object
 func New(pattern string) (Regexp, error) {
 	re, err := regexp.Compile(pattern)
-	if err != nil {
+
+	if err != nil && strings.Contains(err.Error(), "invalid escape sequence") {
 		pattern = strings.ReplaceAll(pattern, "\\", "")
 		re, err = regexp.Compile(pattern)
 	}
