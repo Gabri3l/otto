@@ -652,3 +652,24 @@ func TestErrorStackProperty(t *testing.T) {
 		is(v.String(), "TypeError: uh oh\n    at A (test.js:2:29)\n    at B (test.js:3:26)\n    at C (test.js:4:26)\n    at test.js:8:10\n")
 	})
 }
+
+func TestEscapeSequence(t *testing.T) {
+	tt(t, func() {
+		vm := New()
+
+		s, err := vm.Compile("test.js", `
+			new RegExp("\\\u2036", "g");
+		`)
+
+		if err != nil {
+			panic(err)
+		}
+
+		v, err := vm.Run(s)
+		if err != nil {
+			panic(err)
+		}
+
+		is(v.String(), "/\\\u2036/g")
+	})
+}
