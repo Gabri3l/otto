@@ -65,13 +65,18 @@ func (runtime *_runtime) newRegExpObject(pattern string, flags string) *_object 
 
 	var regularExpression regexp.Regexp
 	var regexpErr error
+	var originalPattern string
 	if transformErr != nil {
 		regularExpression, regexpErr = pcre.New(transformedPattern, pcreFlags)
 	} else {
+		originalPattern = transformedPattern
 		if len(re2flags) > 0 {
 			transformedPattern = fmt.Sprintf("(?%s:%s)", re2flags, transformedPattern)
 		}
 		regularExpression, regexpErr = re2.New(transformedPattern)
+		if regexpErr != nil {
+			regularExpression, regexpErr = pcre.New(originalPattern, pcreFlags)
+		}
 	}
 	if regexpErr != nil {
 		panic(runtime.panicSyntaxError("Invalid regular expression: %s", regexpErr.Error()))

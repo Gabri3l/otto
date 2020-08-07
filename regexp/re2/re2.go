@@ -2,7 +2,6 @@ package re2
 
 import (
 	"regexp"
-	"strings"
 )
 
 // Regexp represents a regular expression object that uses re2
@@ -14,10 +13,6 @@ type Regexp struct {
 func New(pattern string) (Regexp, error) {
 	re, err := regexp.Compile(pattern)
 
-	if err != nil && strings.Contains(err.Error(), "invalid escape sequence") {
-		pattern = strings.ReplaceAll(pattern, "\\", "")
-		re, err = regexp.Compile(pattern)
-	}
 	if err != nil {
 		return Regexp{}, err
 	}
