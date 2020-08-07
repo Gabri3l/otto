@@ -12,7 +12,6 @@ type Regexp struct {
 // New creates a new re2 Regexp object
 func New(pattern string) (Regexp, error) {
 	re, err := regexp.Compile(pattern)
-
 	if err != nil {
 		return Regexp{}, err
 	}
