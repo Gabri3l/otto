@@ -18,6 +18,8 @@ type _object struct {
 	propertyOrder []string
 
 	mu sync.RWMutex
+
+	cyclicalCount int
 }
 
 func newObject(runtime *_runtime, class string) *_object {
@@ -173,6 +175,20 @@ func (self *_object) _write(name string, value interface{}, mode _propertyMode) 
 	if !exists {
 		self.propertyOrder = append(self.propertyOrder, name)
 	}
+}
+
+func (self *_object) _incCyclicalCount() {
+	self.mu.Lock()
+	defer self.mu.Unlock()
+
+	self.cyclicalCount++
+}
+
+func (self *_object) _decCyclicalCount() {
+	self.mu.Lock()
+	defer self.mu.Unlock()
+
+	self.cyclicalCount--
 }
 
 func (self *_object) _delete(name string) {
