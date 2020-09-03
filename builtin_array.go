@@ -626,7 +626,7 @@ func builtinArray_iterator(call FunctionCall) Value {
 		prototype:   call.runtime.global.FunctionPrototype,
 		extensible:  true,
 		property: map[string]_property{
-			"length": _property{
+			"length": {
 				mode: 0,
 				value: Value{
 					kind:  valueNumber,
@@ -651,7 +651,7 @@ func builtinArray_iterator(call FunctionCall) Value {
 		extensible:  true,
 		value:       nil,
 		property: map[string]_property{
-			"next": _property{
+			"next": {
 				mode: 0101,
 				value: Value{
 					kind:  valueObject,
@@ -669,6 +669,10 @@ func builtinArrayIterator_next(list []Value) func(call FunctionCall) Value {
 		if len(list) == 0 {
 			result.put("value", UndefinedValue(), false)
 			result.put("done", toValue_bool(true), false)
+		}
+
+		if index == len(list) {
+			result.put("done", toValue_bool(true), false)
 			return toValue_object(result)
 		}
 
@@ -676,9 +680,6 @@ func builtinArrayIterator_next(list []Value) func(call FunctionCall) Value {
 		result.put("done", toValue_bool(false), false)
 
 		index++
-		if index == len(list) {
-			result.put("done", toValue_bool(true), false)
-		}
 
 		return toValue_object(result)
 	}
