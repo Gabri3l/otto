@@ -2247,6 +2247,29 @@ func _newContext(runtime *_runtime) {
 				call: builtinString_substr,
 			},
 		}
+		padStart_function := &_object{
+			runtime:     runtime,
+			class:       "Function",
+			objectClass: _classObject,
+			prototype:   runtime.global.FunctionPrototype,
+			extensible:  true,
+			property: map[string]_property{
+				"length": _property{
+					mode: 0,
+					value: Value{
+						kind:  valueNumber,
+						value: 2,
+					},
+				},
+			},
+			propertyOrder: []string{
+				"length",
+			},
+			value: _nativeFunctionObject{
+				name: "padStart",
+				call: builtinString_padStart,
+			},
+		}
 		trim_function := &_object{
 			runtime:     runtime,
 			class:       "Function",
@@ -2479,6 +2502,13 @@ func _newContext(runtime *_runtime) {
 						value: match_function,
 					},
 				},
+				"padStart": _property{
+					mode: 0101,
+					value: Value{
+						kind:  valueObject,
+						value: padStart_function,
+					},
+				},
 				"replace": _property{
 					mode: 0101,
 					value: Value{
@@ -2542,6 +2572,13 @@ func _newContext(runtime *_runtime) {
 						value: trim_function,
 					},
 				},
+				"trimEnd": _property{
+					mode: 0101,
+					value: Value{
+						kind:  valueObject,
+						value: trimRight_function,
+					},
+				},
 				"trimLeft": _property{
 					mode: 0101,
 					value: Value{
@@ -2554,6 +2591,13 @@ func _newContext(runtime *_runtime) {
 					value: Value{
 						kind:  valueObject,
 						value: trimRight_function,
+					},
+				},
+				"trimStart": _property{
+					mode: 0101,
+					value: Value{
+						kind:  valueObject,
+						value: trimLeft_function,
 					},
 				},
 				"localeCompare": _property{
@@ -2588,6 +2632,7 @@ func _newContext(runtime *_runtime) {
 				"indexOf",
 				"lastIndexOf",
 				"match",
+				"padStart",
 				"replace",
 				"search",
 				"split",
@@ -2597,8 +2642,10 @@ func _newContext(runtime *_runtime) {
 				"toUpperCase",
 				"substr",
 				"trim",
+				"trimEnd",
 				"trimLeft",
 				"trimRight",
+				"trimStart",
 				"localeCompare",
 				"toLocaleLowerCase",
 				"toLocaleUpperCase",
