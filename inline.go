@@ -1013,6 +1013,52 @@ func _newContext(runtime *_runtime) {
 				call: builtinArray_concat,
 			},
 		}
+		find_function := &_object{
+			runtime:     runtime,
+			class:       "Function",
+			objectClass: _classObject,
+			prototype:   runtime.global.FunctionPrototype,
+			extensible:  true,
+			property: map[string]_property{
+				"length": _property{
+					mode: 0,
+					value: Value{
+						kind:  valueNumber,
+						value: 2,
+					},
+				},
+			},
+			propertyOrder: []string{
+				"length",
+			},
+			value: _nativeFunctionObject{
+				name: "concat",
+				call: builtinArray_find,
+			},
+		}
+		findIndex_function := &_object{
+			runtime:     runtime,
+			class:       "Function",
+			objectClass: _classObject,
+			prototype:   runtime.global.FunctionPrototype,
+			extensible:  true,
+			property: map[string]_property{
+				"length": _property{
+					mode: 0,
+					value: Value{
+						kind:  valueNumber,
+						value: 2,
+					},
+				},
+			},
+			propertyOrder: []string{
+				"length",
+			},
+			value: _nativeFunctionObject{
+				name: "concat",
+				call: builtinArray_findIndex,
+			},
+		}
 		join_function := &_object{
 			runtime:     runtime,
 			class:       "Function",
@@ -1484,6 +1530,20 @@ func _newContext(runtime *_runtime) {
 					value: Value{
 						kind:  valueObject,
 						value: concat_function,
+					},
+				},
+				"find": _property{
+					mode: 0101,
+					value: Value{
+						kind:  valueObject,
+						value: find_function,
+					},
+				},
+				"findIndex": _property{
+					mode: 0101,
+					value: Value{
+						kind:  valueObject,
+						value: findIndex_function,
 					},
 				},
 				"join": _property{
