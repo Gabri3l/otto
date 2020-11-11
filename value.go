@@ -423,12 +423,12 @@ func (value Value) String() string {
 //		ToValue("Nothing happens").ToBoolean() => true
 //
 // If there is an error during the conversion process (like an uncaught exception), then the result will be false and an error.
-func (value Value) ToBoolean() (bool, error) {
+func (value Value) ToBoolean() bool {
 	result := false
-	err := catchPanic(func() {
+	catchPanic(func() {
 		result = value.bool()
 	})
-	return result, err
+	return result
 }
 
 func (value Value) numberValue() Value {
@@ -682,8 +682,8 @@ func (self Value) IsNative() bool {
 //      Array       -> []interface{}
 //      Object      -> map[string]interface{}
 //
-func (self Value) Export() (interface{}, error) {
-	return self.export(), nil
+func (self Value) Export() interface{} {
+	return self.export()
 }
 
 func (self Value) export() interface{} {

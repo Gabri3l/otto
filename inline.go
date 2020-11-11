@@ -809,6 +809,75 @@ func _newContext(runtime *_runtime) {
 				call: builtinObject_keys,
 			},
 		}
+		values_function := &_object{
+			runtime:     runtime,
+			class:       "Function",
+			objectClass: _classObject,
+			prototype:   runtime.global.FunctionPrototype,
+			extensible:  true,
+			property: map[string]_property{
+				"length": _property{
+					mode: 0,
+					value: Value{
+						kind:  valueNumber,
+						value: 1,
+					},
+				},
+			},
+			propertyOrder: []string{
+				"length",
+			},
+			value: _nativeFunctionObject{
+				name: "keys",
+				call: builtinObject_values,
+			},
+		}
+		entries_function := &_object{
+			runtime:     runtime,
+			class:       "Function",
+			objectClass: _classObject,
+			prototype:   runtime.global.FunctionPrototype,
+			extensible:  true,
+			property: map[string]_property{
+				"length": _property{
+					mode: 0,
+					value: Value{
+						kind:  valueNumber,
+						value: 1,
+					},
+				},
+			},
+			propertyOrder: []string{
+				"length",
+			},
+			value: _nativeFunctionObject{
+				name: "keys",
+				call: builtinObject_entries,
+			},
+		}
+		fromEntries_function := &_object{
+			runtime:     runtime,
+			class:       "Function",
+			objectClass: _classObject,
+			prototype:   runtime.global.FunctionPrototype,
+			extensible:  true,
+			property: map[string]_property{
+				"length": _property{
+					mode: 0,
+					value: Value{
+						kind:  valueNumber,
+						value: 1,
+					},
+				},
+			},
+			propertyOrder: []string{
+				"length",
+			},
+			value: _nativeFunctionObject{
+				name: "keys",
+				call: builtinObject_fromEntries,
+			},
+		}
 		getOwnPropertyNames_function := &_object{
 			runtime:     runtime,
 			class:       "Function",
@@ -900,6 +969,13 @@ func _newContext(runtime *_runtime) {
 						value: create_function,
 					},
 				},
+				"fromEntries": _property{
+					mode: 0101,
+					value: Value{
+						kind:  valueObject,
+						value: fromEntries_function,
+					},
+				},
 				"isExtensible": _property{
 					mode: 0101,
 					value: Value{
@@ -947,6 +1023,20 @@ func _newContext(runtime *_runtime) {
 					value: Value{
 						kind:  valueObject,
 						value: keys_function,
+					},
+				},
+				"values": _property{
+					mode: 0101,
+					value: Value{
+						kind:  valueObject,
+						value: values_function,
+					},
+				},
+				"entries": _property{
+					mode: 0101,
+					value: Value{
+						kind:  valueObject,
+						value: entries_function,
 					},
 				},
 				"getOwnPropertyNames": _property{
@@ -1226,6 +1316,52 @@ func _newContext(runtime *_runtime) {
 			value: _nativeFunctionObject{
 				name: "concat",
 				call: builtinArray_concat,
+			},
+		}
+		find_function := &_object{
+			runtime:     runtime,
+			class:       "Function",
+			objectClass: _classObject,
+			prototype:   runtime.global.FunctionPrototype,
+			extensible:  true,
+			property: map[string]_property{
+				"length": _property{
+					mode: 0,
+					value: Value{
+						kind:  valueNumber,
+						value: 2,
+					},
+				},
+			},
+			propertyOrder: []string{
+				"length",
+			},
+			value: _nativeFunctionObject{
+				name: "concat",
+				call: builtinArray_find,
+			},
+		}
+		findIndex_function := &_object{
+			runtime:     runtime,
+			class:       "Function",
+			objectClass: _classObject,
+			prototype:   runtime.global.FunctionPrototype,
+			extensible:  true,
+			property: map[string]_property{
+				"length": _property{
+					mode: 0,
+					value: Value{
+						kind:  valueNumber,
+						value: 2,
+					},
+				},
+			},
+			propertyOrder: []string{
+				"length",
+			},
+			value: _nativeFunctionObject{
+				name: "concat",
+				call: builtinArray_findIndex,
 			},
 		}
 		join_function := &_object{
@@ -1706,6 +1842,20 @@ func _newContext(runtime *_runtime) {
 					value: Value{
 						kind:  valueObject,
 						value: concat_function,
+					},
+				},
+				"find": _property{
+					mode: 0101,
+					value: Value{
+						kind:  valueObject,
+						value: find_function,
+					},
+				},
+				"findIndex": _property{
+					mode: 0101,
+					value: Value{
+						kind:  valueObject,
+						value: findIndex_function,
 					},
 				},
 				"join": _property{
@@ -2278,6 +2428,29 @@ func _newContext(runtime *_runtime) {
 				call: builtinString_substr,
 			},
 		}
+		padStart_function := &_object{
+			runtime:     runtime,
+			class:       "Function",
+			objectClass: _classObject,
+			prototype:   runtime.global.FunctionPrototype,
+			extensible:  true,
+			property: map[string]_property{
+				"length": _property{
+					mode: 0,
+					value: Value{
+						kind:  valueNumber,
+						value: 2,
+					},
+				},
+			},
+			propertyOrder: []string{
+				"length",
+			},
+			value: _nativeFunctionObject{
+				name: "padStart",
+				call: builtinString_padStart,
+			},
+		}
 		trim_function := &_object{
 			runtime:     runtime,
 			class:       "Function",
@@ -2508,6 +2681,13 @@ func _newContext(runtime *_runtime) {
 					value: Value{
 						kind:  valueObject,
 						value: match_function,
+					},
+				},
+				"padStart": _property{
+					mode: 0101,
+					value: Value{
+						kind:  valueObject,
+						value: padStart_function,
 					},
 				},
 				"replace": _property{
