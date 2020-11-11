@@ -65,6 +65,7 @@ func builtinSymbol_toString(call FunctionCall) Value {
 	panic(call.runtime.panicTypeError("Symbol.toString()"))
 }
 
+// TODO: Not sure this function name is clear enough
 func builtinSymbol_toObjKeyString(call FunctionCall) Value {
 	object := call.thisClassObject("Symbol") // Should throw a TypeError unless Symbol
 	switch sym := object.value.(type) {

@@ -315,6 +315,8 @@ func builtinJSON_stringifyWalk(ctx _builtinJSON_stringifyContext, key string, ho
 				// Go maps are without order, so this doesn't conform to the ECMA ordering
 				// standard, but oh well...
 				holder.enumerate(false, func(name string) bool {
+					// TODO: we should probably have a smarter check like we did in
+					// cmpl_evaluate_nodeBracketExpression.
 					if !strings.HasPrefix(name, "Symbol") {
 						value, exists := builtinJSON_stringifyWalk(ctx, name, holder)
 						if exists {

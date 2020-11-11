@@ -434,6 +434,7 @@ func _newContext(runtime *_runtime) {
 				call: builtinSymbol_toString,
 			},
 		}
+		// TODO: not sure this is a great name for it
 		toObjKeyString_function := &_object{
 			runtime:     runtime,
 			class:       "Function",
@@ -453,7 +454,7 @@ func _newContext(runtime *_runtime) {
 				"length",
 			},
 			value: _nativeFunctionObject{
-				name: "toString",
+				name: "_toObjKeyString",
 				call: builtinSymbol_toObjKeyString,
 			},
 		}

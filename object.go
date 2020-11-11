@@ -112,6 +112,8 @@ func (self *_object) DefaultValue(hint _defaultValueHint) Value {
 			hint = defaultValueHintNumber
 		}
 	}
+
+	// TODO: maybe use a switch statement with the following line as a default ?
 	methodSequence := []string{"valueOf", "toString"}
 	if hint == defaultValueHintString {
 		methodSequence = []string{"toString", "valueOf"}

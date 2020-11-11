@@ -173,8 +173,11 @@ func (self *_runtime) cmpl_evaluate_nodeBracketExpression(node *_nodeBracketExpr
 	member := self.cmpl_evaluate_nodeExpression(node.member)
 	memberValue := member.resolve()
 
-	// TODO: to check if it's a symbol it has to be the right stirng value and the right kind (otherwise I might just
-	// pass in a string like "Symbol" and mistakenly consider that a symbol)
+	// TODO: to check if it's a symbol it has to be the right string value and
+	// the right kind (otherwise I might just pass in a string like "Symbol" and mistakenly
+	// consider that a symbol). We need probably a smarter check here on the value as well
+	// since Symbol() and Symbol(description) should both be considered Symbols. We can
+	// either go regex or use builtin strings package utils.
 	isSymbol := fmt.Sprintf("%v", memberValue.value) == "Symbol()"
 
 	// TODO Pass in base value as-is, and defer toObject till later?
@@ -183,6 +186,9 @@ func (self *_runtime) cmpl_evaluate_nodeBracketExpression(node *_nodeBracketExpr
 		panic(self.panicTypeError("Cannot access member '%s' of %s", memberValue.string(), err.Error(), _at(node.idx)))
 	}
 
+	// TODO: We can just have a memberStr variable which can either be memberValue.symstring() or memberValue.string()
+	// this way we just pass that variable as a param and use the conditional to reassign it if we need to, instead
+	// of having multiple returns
 	if isSymbol {
 		return toValue(newPropertyReference(self, object, memberValue.symstring(), false, _at(node.idx)))
 	}

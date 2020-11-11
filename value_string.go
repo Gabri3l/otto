@@ -102,6 +102,12 @@ func (value Value) string() string {
 	return ""
 }
 
+// TODO: I kept this as a separate function so we wouldn't touch the above string. This is
+// because I only want to use symstring for object bracket assignments so a dedicate function
+// can guarantee us lack of conflicts with other existing behaviors.
+// TODO: Not sure symstring is a good name lol
+// TODO: We might not need most of what's inside the body of this function, this was copied over
+// to quickly prototype a solution
 func (value Value) symstring() string {
 	if value.kind == valueString {
 		switch value := value.value.(type) {
