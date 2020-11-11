@@ -434,6 +434,29 @@ func _newContext(runtime *_runtime) {
 				call: builtinSymbol_toString,
 			},
 		}
+		toObjKeyString_function := &_object{
+			runtime:     runtime,
+			class:       "Function",
+			objectClass: _classObject,
+			prototype:   runtime.global.FunctionPrototype,
+			extensible:  true,
+			property: map[string]_property{
+				"length": _property{
+					mode: 0,
+					value: Value{
+						kind:  valueNumber,
+						value: 0,
+					},
+				},
+			},
+			propertyOrder: []string{
+				"length",
+			},
+			value: _nativeFunctionObject{
+				name: "toString",
+				call: builtinSymbol_toObjKeyString,
+			},
+		}
 		valueOf_function := &_object{
 			runtime:     runtime,
 			class:       "Function",
@@ -465,6 +488,13 @@ func _newContext(runtime *_runtime) {
 					value: toString_function,
 				},
 			},
+			"_toObjKeyString": _property{
+				mode: 0101,
+				value: Value{
+					kind:  valueObject,
+					value: toObjKeyString_function,
+				},
+			},
 			"valueOf": _property{
 				mode: 0101,
 				value: Value{
@@ -476,6 +506,7 @@ func _newContext(runtime *_runtime) {
 		runtime.global.SymbolPrototype.propertyOrder = []string{
 			"toString",
 			"valueOf",
+			"_toObjKeyString",
 		}
 	}
 	{
@@ -2542,6 +2573,13 @@ func _newContext(runtime *_runtime) {
 						value: trim_function,
 					},
 				},
+				"trimEnd": _property{
+					mode: 0101,
+					value: Value{
+						kind:  valueObject,
+						value: trimRight_function,
+					},
+				},
 				"trimLeft": _property{
 					mode: 0101,
 					value: Value{
@@ -2554,6 +2592,13 @@ func _newContext(runtime *_runtime) {
 					value: Value{
 						kind:  valueObject,
 						value: trimRight_function,
+					},
+				},
+				"trimStart": _property{
+					mode: 0101,
+					value: Value{
+						kind:  valueObject,
+						value: trimLeft_function,
 					},
 				},
 				"localeCompare": _property{
@@ -2588,6 +2633,7 @@ func _newContext(runtime *_runtime) {
 				"indexOf",
 				"lastIndexOf",
 				"match",
+				"padStart",
 				"replace",
 				"search",
 				"split",
@@ -2597,8 +2643,10 @@ func _newContext(runtime *_runtime) {
 				"toUpperCase",
 				"substr",
 				"trim",
+				"trimEnd",
 				"trimLeft",
 				"trimRight",
+				"trimStart",
 				"localeCompare",
 				"toLocaleLowerCase",
 				"toLocaleUpperCase",

@@ -58,6 +58,7 @@ func (value Value) string() string {
 	if value.IsNull() {
 		return "null"
 	}
+
 	switch value := value.value.(type) {
 	case bool:
 		return strconv.FormatBool(value)
@@ -98,5 +99,29 @@ func (value Value) string() string {
 	case *_object:
 		return value.DefaultValue(defaultValueHintString).string()
 	}
+	return ""
+}
+
+func (value Value) symstring() string {
+	if value.kind == valueString {
+		switch value := value.value.(type) {
+		case string:
+			return value
+		case []uint16:
+			return string(utf16.Decode(value))
+		}
+	}
+	if value.IsUndefined() {
+		return "undefined"
+	}
+	if value.IsNull() {
+		return "null"
+	}
+
+	switch value := value.value.(type) {
+	case *_object:
+		return value.DefaultValue(defaultValueHintSymbol).string()
+	}
+
 	return ""
 }

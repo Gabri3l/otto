@@ -99,6 +99,7 @@ const (
 	defaultValueNoHint _defaultValueHint = iota
 	defaultValueHintString
 	defaultValueHintNumber
+	defaultValueHintSymbol
 )
 
 // 8.12.8
@@ -114,6 +115,9 @@ func (self *_object) DefaultValue(hint _defaultValueHint) Value {
 	methodSequence := []string{"valueOf", "toString"}
 	if hint == defaultValueHintString {
 		methodSequence = []string{"toString", "valueOf"}
+	}
+	if hint == defaultValueHintSymbol {
+		methodSequence = []string{"_toObjKeyString", "toString", "valueOf"}
 	}
 	for _, methodName := range methodSequence {
 		method := self.get(methodName)
