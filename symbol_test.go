@@ -105,5 +105,20 @@ func TestSymbol(t *testing.T) {
 			var eArr = arr[Symbol.iterator]();
 			eArr.next().value + "," + eArr.next().value + "," + eArr.next().value
 		`, "a,b,c")
+
+		// two symbols being used as keys with identical descriptions
+		test(`
+			var sym1 = Symbol("u");
+			var sym2 = Symbol("u");
+			var myObj = {};
+
+			var results = [];
+
+			myObj[sym1] = 42;
+			results.push(myObj[sym1]);
+			myObj[sym2] = 99;
+			results.push(myObj[sym1]);
+			results;
+		`, "42, 42")
 	})
 }

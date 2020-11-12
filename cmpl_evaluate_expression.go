@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"runtime"
+	"strings"
 
 	"github.com/robertkrimen/otto/token"
 )
@@ -172,13 +173,20 @@ func (self *_runtime) cmpl_evaluate_nodeBracketExpression(node *_nodeBracketExpr
 	targetValue := target.resolve()
 	member := self.cmpl_evaluate_nodeExpression(node.member)
 	memberValue := member.resolve()
+	memberStr := memberValue.string()
+
+	isSymbol := strings.HasPrefix(fmt.Sprintf("%v", memberValue.value), "Symbol(") && memberValue.kind == valueObject
+	if isSymbol {
+		memberStr = memberValue.symstring()
+	}
 
 	// TODO Pass in base value as-is, and defer toObject till later?
 	object, err := self.objectCoerce(targetValue)
 	if err != nil {
 		panic(self.panicTypeError("Cannot access member '%s' of %s", memberValue.string(), err.Error(), _at(node.idx)))
 	}
-	return toValue(newPropertyReference(self, object, memberValue.string(), false, _at(node.idx)))
+
+	return toValue(newPropertyReference(self, object, memberStr, false, _at(node.idx)))
 }
 
 func (self *_runtime) cmpl_evaluate_nodeCallExpression(node *_nodeCallExpression, withArgumentList []interface{}) Value {

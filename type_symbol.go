@@ -1,7 +1,10 @@
 package otto
 
+import "fmt"
+
 type _symbolObject struct {
 	description interface{}
+	internalVal interface{}
 }
 
 func (runtime *_runtime) newSymbolObject(description interface{}) *_object {
@@ -11,6 +14,7 @@ func (runtime *_runtime) newSymbolObject(description interface{}) *_object {
 	symbol := _symbolObject{
 		description: description,
 	}
+	symbol.internalVal = fmt.Sprintf("%p", &symbol)
 	self.value = symbol
 	self.defineProperty("description", toValue(description), 0000, false)
 
