@@ -175,6 +175,7 @@ func (self *_runtime) cmpl_evaluate_nodeBracketExpression(node *_nodeBracketExpr
 	memberValue := member.resolve()
 	memberStr := memberValue.string()
 
+	// check to make sure whether or not a given member value is a Symbol object
 	isSymbol := strings.HasPrefix(fmt.Sprintf("%v", memberValue.value), "Symbol(") && memberValue.kind == valueObject
 	if isSymbol {
 		memberStr = memberValue.symbolString()
