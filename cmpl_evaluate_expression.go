@@ -177,7 +177,7 @@ func (self *_runtime) cmpl_evaluate_nodeBracketExpression(node *_nodeBracketExpr
 
 	isSymbol := strings.HasPrefix(fmt.Sprintf("%v", memberValue.value), "Symbol(") && memberValue.kind == valueObject
 	if isSymbol {
-		memberStr = memberValue.symstring()
+		memberStr = memberValue.symbolString()
 	}
 
 	// TODO Pass in base value as-is, and defer toObject till later?

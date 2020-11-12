@@ -101,15 +101,7 @@ func (value Value) string() string {
 	return ""
 }
 
-func (value Value) symstring() string {
-	if value.kind == valueString {
-		switch value := value.value.(type) {
-		case string:
-			return value
-		case []uint16:
-			return string(utf16.Decode(value))
-		}
-	}
+func (value Value) symbolString() string {
 	if value.IsUndefined() {
 		return "undefined"
 	}

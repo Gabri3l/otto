@@ -434,7 +434,7 @@ func _newContext(runtime *_runtime) {
 				call: builtinSymbol_toString,
 			},
 		}
-		toObjKeyString_function := &_object{
+		toValueString_function := &_object{
 			runtime:     runtime,
 			class:       "Function",
 			objectClass: _classObject,
@@ -453,8 +453,8 @@ func _newContext(runtime *_runtime) {
 				"length",
 			},
 			value: _nativeFunctionObject{
-				name: "toObjKeyString",
-				call: builtinSymbol_toObjKeyString,
+				name: "toValueString",
+				call: builtinSymbol_toValueString,
 			},
 		}
 		valueOf_function := &_object{
@@ -488,11 +488,11 @@ func _newContext(runtime *_runtime) {
 					value: toString_function,
 				},
 			},
-			"toObjKeyString": _property{
+			"toValueString": _property{
 				mode: 0101,
 				value: Value{
 					kind:  valueObject,
-					value: toObjKeyString_function,
+					value: toValueString_function,
 				},
 			},
 			"valueOf": _property{
@@ -505,7 +505,7 @@ func _newContext(runtime *_runtime) {
 		}
 		runtime.global.SymbolPrototype.propertyOrder = []string{
 			"toString",
-			"toObjKeyString",
+			"toValueString",
 			"valueOf",
 		}
 	}

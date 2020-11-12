@@ -63,15 +63,15 @@ func builtinSymbol_toString(call FunctionCall) Value {
 	panic(call.runtime.panicTypeError("Symbol.toString()"))
 }
 
-func builtinSymbol_toObjKeyString(call FunctionCall) Value {
+func builtinSymbol_toValueString(call FunctionCall) Value {
 	object := call.thisClassObject("Symbol") // Should throw a TypeError unless Symbol
 	switch sym := object.value.(type) {
 	case _symbolObject:
 		switch sym.description.(type) {
 		case nil:
-			return toValue_string(fmt.Sprintf("Symbol(%v)", sym.internalVal))
+			return toValue_string(fmt.Sprintf("Symbol(%v)", sym.value))
 		default:
-			return toValue_string(fmt.Sprintf("Symbol(%v_%v)", sym.description, sym.internalVal))
+			return toValue_string(fmt.Sprintf("Symbol(%v_%v)", sym.description, sym.value))
 		}
 	}
 

@@ -118,7 +118,7 @@ func (self *_object) DefaultValue(hint _defaultValueHint) Value {
 	case defaultValueHintString:
 		methodSequence = []string{"toString", "valueOf"}
 	case defaultValueHintSymbol:
-		methodSequence = []string{"toObjKeyString", "toString", "valueOf"}
+		methodSequence = []string{"toValueString", "toString", "valueOf"}
 	default:
 		methodSequence = []string{"valueOf", "toString"}
 	}
