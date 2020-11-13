@@ -315,6 +315,10 @@ func builtinJSON_stringifyWalk(ctx _builtinJSON_stringifyContext, key string, ho
 				// Go maps are without order, so this doesn't conform to the ECMA ordering
 				// standard, but oh well...
 				holder.enumerate(false, func(name string) bool {
+					// this check will skip object fields where the key
+					// is equal to the prefix "Symbol(". While this isn't the most ideal solution,
+					// it is unlikely that a user will use "Symbol(" as a key and also
+					// run JSON.stringify on that object
 					isSymbol := strings.HasPrefix(name, "Symbol(")
 					if !isSymbol {
 						value, exists := builtinJSON_stringifyWalk(ctx, name, holder)

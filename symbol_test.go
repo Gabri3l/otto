@@ -119,6 +119,29 @@ func TestSymbol(t *testing.T) {
 			myObj[sym2] = 99;
 			results.push(myObj[sym1]);
 			results;
-		`, "42, 42")
+		`, "42,42")
+
+		// two symbols being used as keys with identical, empty descriptions
+		test(`
+			var sym1 = Symbol();
+			var sym2 = Symbol();
+			var myObj = {};
+
+			var results = [];
+
+			myObj[sym1] = 42;
+			results.push(myObj[sym1]);
+			myObj[sym2] = 99;
+			results.push(myObj[sym1]);
+			results;
+		`, "42,42")
+
+		// JSON.stringify should not return a field with a Symbol key
+		test(`
+			var sym1 = Symbol("u");
+			var myObj = {};
+			myObj[sym1] = 99;
+			JSON.stringify(myObj) === "{}";
+		`, true)
 	})
 }

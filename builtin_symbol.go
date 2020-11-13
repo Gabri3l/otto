@@ -69,9 +69,9 @@ func builtinSymbol_toValueString(call FunctionCall) Value {
 	case _symbolObject:
 		switch sym.description.(type) {
 		case nil:
-			return toValue_string(fmt.Sprintf("Symbol(%v)", sym.value))
+			return toValue_string(fmt.Sprintf("Symbol(%v)", sym._value))
 		default:
-			return toValue_string(fmt.Sprintf("Symbol(%v_%v)", sym.description, sym.value))
+			return toValue_string(fmt.Sprintf("Symbol(%v_%v)", sym.description, sym._value))
 		}
 	}
 
