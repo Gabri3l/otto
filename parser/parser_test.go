@@ -54,9 +54,6 @@ func TestParseFile(t *testing.T) {
 		_, err = ParseFile(nil, "", `/(?!def)abc/`, IgnoreRegExpErrors)
 		is(err, nil)
 
-		_, err = ParseFile(nil, "", `/(?!def)abc/`, 0)
-		is(err, "(anonymous): Line 1:1 Invalid regular expression: re2: Invalid (?!) <lookahead>")
-
 		_, err = ParseFile(nil, "", `/(?!def)abc/; return`, IgnoreRegExpErrors)
 		is(err, "(anonymous): Line 1:15 Illegal return statement")
 
