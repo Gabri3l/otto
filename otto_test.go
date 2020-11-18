@@ -859,7 +859,7 @@ func TestAPI(t *testing.T) {
 		object = abc.Object() // Object abc
 
 		expectedKeys = []string{"0", "1", "2", "3", "4", "def"}
-		expectedValues = []interface{}{0, 1, 2, 3.14159, "abc", nil}
+		expectedValues = []interface{}{0, 1, 2, 3.14159, "abc", true}
 		is(object.Keys(), expectedKeys)
 
 		values = object.Values()
