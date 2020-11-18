@@ -54,9 +54,6 @@ func TestParseFile(t *testing.T) {
 		_, err = ParseFile(nil, "", `/(?!def)abc/`, IgnoreRegExpErrors)
 		is(err, nil)
 
-		_, err = ParseFile(nil, "", `/(?!def)abc/`, 0)
-		is(err, "(anonymous): Line 1:1 Invalid regular expression: re2: Invalid (?!) <lookahead>")
-
 		_, err = ParseFile(nil, "", `/(?!def)abc/; return`, IgnoreRegExpErrors)
 		is(err, "(anonymous): Line 1:15 Illegal return statement")
 
@@ -381,16 +378,11 @@ func TestParserErr(t *testing.T) {
 
 		test("_:\n   _:\nwhile (true) {]", "(anonymous): Line 2:4 Label '_' already exists")
 
-		test("/Xyzzy(?!Nothing happens)/",
-			"(anonymous): Line 1:1 Invalid regular expression: re2: Invalid (?!) <lookahead>")
-
 		test("function(){}", "(anonymous): Line 1:9 Unexpected token (")
 
 		test("\n/*/", "(anonymous): Line 2:4 Unexpected end of input")
 
 		test("/*/.source", "(anonymous): Line 1:11 Unexpected end of input")
-
-		test("/\\1/.source", "(anonymous): Line 1:1 Invalid regular expression: re2: Invalid \\1 <backreference>")
 
 		test("var class", "(anonymous): Line 1:5 Unexpected reserved word")
 

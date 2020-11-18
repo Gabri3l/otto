@@ -100,3 +100,19 @@ func (value Value) string() string {
 	}
 	return ""
 }
+
+func (value Value) symbolString() string {
+	if value.IsUndefined() {
+		return "undefined"
+	}
+	if value.IsNull() {
+		return "null"
+	}
+
+	switch value := value.value.(type) {
+	case *_object:
+		return value.DefaultValue(defaultValueHintSymbol).string()
+	}
+
+	return ""
+}

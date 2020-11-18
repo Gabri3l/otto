@@ -172,13 +172,22 @@ func (self *_runtime) cmpl_evaluate_nodeBracketExpression(node *_nodeBracketExpr
 	targetValue := target.resolve()
 	member := self.cmpl_evaluate_nodeExpression(node.member)
 	memberValue := member.resolve()
+	memberStr := memberValue.string()
+
+	switch val := memberValue.value.(type) {
+	case *_object:
+		if val.class == "Symbol" && val.value.(_symbolObject).description != "Symbol.iterator" {
+			memberStr = memberValue.symbolString()
+		}
+	}
 
 	// TODO Pass in base value as-is, and defer toObject till later?
 	object, err := self.objectCoerce(targetValue)
 	if err != nil {
 		panic(self.panicTypeError("Cannot access member '%s' of %s", memberValue.string(), err.Error(), _at(node.idx)))
 	}
-	return toValue(newPropertyReference(self, object, memberValue.string(), false, _at(node.idx)))
+
+	return toValue(newPropertyReference(self, object, memberStr, false, _at(node.idx)))
 }
 
 func (self *_runtime) cmpl_evaluate_nodeCallExpression(node *_nodeCallExpression, withArgumentList []interface{}) Value {

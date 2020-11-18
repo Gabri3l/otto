@@ -99,6 +99,7 @@ const (
 	defaultValueNoHint _defaultValueHint = iota
 	defaultValueHintString
 	defaultValueHintNumber
+	defaultValueHintSymbol
 )
 
 // 8.12.8
@@ -111,10 +112,17 @@ func (self *_object) DefaultValue(hint _defaultValueHint) Value {
 			hint = defaultValueHintNumber
 		}
 	}
-	methodSequence := []string{"valueOf", "toString"}
-	if hint == defaultValueHintString {
+
+	var methodSequence []string
+	switch hint {
+	case defaultValueHintString:
 		methodSequence = []string{"toString", "valueOf"}
+	case defaultValueHintSymbol:
+		methodSequence = []string{"toValueString", "toString", "valueOf"}
+	default:
+		methodSequence = []string{"valueOf", "toString"}
 	}
+
 	for _, methodName := range methodSequence {
 		method := self.get(methodName)
 		// FIXME This is redundant...
