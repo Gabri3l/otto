@@ -103,6 +103,12 @@ func TestObject_create(t *testing.T) {
             var mno = Object.create({}, properties);
             mno.hasOwnProperty("abc");
         `, false)
+
+		test(`
+            var myO = { 0x16: "hexciting","0x16": "not_hexciting"};
+
+            [myO[0x16],myO[22],myO["22"],myO["0x16"]]
+        `, "hexciting,hexciting,hexciting,not_hexciting")
 	})
 }
 
